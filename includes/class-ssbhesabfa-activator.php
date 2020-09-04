@@ -13,7 +13,7 @@
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  */
 class Ssbhesabfa_Activator {
-    private $ssbhesabfa_db_version = '1.1';
+    public static $ssbhesabfa_db_version = '1.1';
 
     /**
 	 * Short Description. (use period)
@@ -32,7 +32,7 @@ class Ssbhesabfa_Activator {
         self::ssbhesabfa_create_database_table();
 	}
 
-    private function ssbhesabfa_create_database_table()
+    public static function ssbhesabfa_create_database_table()
     {
         global $wpdb;
         $table_name = $wpdb->prefix . "ssbhesabfa";
@@ -51,6 +51,6 @@ class Ssbhesabfa_Activator {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
       	dbDelta($sql);
 
-        update_option('ssbhesabfa_db_version', $this->ssbhesabfa_db_version);
+        update_option('ssbhesabfa_db_version', Ssbhesabfa_Activator::$ssbhesabfa_db_version);
     }
 }
