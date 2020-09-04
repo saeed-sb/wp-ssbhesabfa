@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-08-09 00:25+0430\n"
-"PO-Revision-Date: 2020-08-09 00:31+0430\n"
+"POT-Creation-Date: 2020-09-04 22:10+0430\n"
+"PO-Revision-Date: 2020-09-04 22:10+0430\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -20,16 +20,16 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: admin/class-ssbhesabfa-admin.php:122
+#: admin/class-ssbhesabfa-admin.php:139
 #, php-format
 msgid "Hesabfa Plugin requires the %s to work!"
 msgstr "افزونه حسابفا نیازمند %s است!"
 
-#: admin/class-ssbhesabfa-admin.php:122
+#: admin/class-ssbhesabfa-admin.php:139
 msgid "WooCommerce"
 msgstr "ووکامرس"
 
-#: admin/class-ssbhesabfa-admin.php:131
+#: admin/class-ssbhesabfa-admin.php:148
 msgid ""
 "Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API "
 "credential!"
@@ -37,7 +37,7 @@ msgstr ""
 "افزونه حسابفا نیازمن اتصال به نرم‌افزار حسابداری حسابفا است، لطفا اطلاعات "
 "دسترسی به API حسابفا را بررسی کنید!"
 
-#: admin/class-ssbhesabfa-admin.php:140
+#: admin/class-ssbhesabfa-admin.php:157
 msgid ""
 "Hesabfa Plugin cannot works! because WooCommerce currency in not match with "
 "Hesabfa."
@@ -45,7 +45,7 @@ msgstr ""
 "افزونه حسابفا نمی‌تواند به درستی عمل کند! واحد پول پیش‌فرض ووکامرس با واحد پول "
 "پیش‌فرض حسابفا همخوانی ندارد."
 
-#: admin/class-ssbhesabfa-admin.php:149
+#: admin/class-ssbhesabfa-admin.php:166
 msgid ""
 "The fiscal year has passed or not arrived. Please check the fiscal year "
 "settings in Hesabfa."
@@ -101,8 +101,8 @@ msgstr ""
 "افزونه حسابفا جهت راه‌اندازی نیاز به ووکامرس دارد! لطفا ووکامرس را نصب/فعال "
 "کنید و مجدد سعی کنید."
 
-#: admin/partials/ssbhesabfa-admin-functions.php:163
-#: admin/partials/ssbhesabfa-admin-functions.php:228
+#: admin/partials/ssbhesabfa-admin-functions.php:218
+#: admin/partials/ssbhesabfa-admin-functions.php:283
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
