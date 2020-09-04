@@ -16,7 +16,7 @@ This plugin helps connect your (online) store to Hesabfa online accounting softw
 For more information and a full guide to how to use Hesabfa and WooCommerce Plugin, visit Hesabfa’s website and go to the “Accounting School” menu.
 
 == Installation ==
-1. Upload the plugin files to the `/wp-content/plugins/ssbhesabfa` directory, or install the bhesabfa plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/hesabfa-accounting` directory, or install the hesabfa plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the \'Plugins\' screen in WordPress
 3. Use the Settings->Hesabfa screen to configure the plugin
 
