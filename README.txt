@@ -67,7 +67,8 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 
 = 1.0.7 - 04.10.2020 =
 * compatible with product variations
-* fix
+* add ssbhesabfa_db_version option
+* fix getObjectId bug
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
