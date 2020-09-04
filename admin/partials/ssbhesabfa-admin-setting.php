@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.0.6
+ * @version    1.0.7
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting

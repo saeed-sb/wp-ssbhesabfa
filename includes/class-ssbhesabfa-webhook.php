@@ -80,7 +80,7 @@ class Ssbhesabfa_Webhook
                         $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj");
                         if (is_object($row) && $row->id_hesabfa != $number) {
                             $id_hesabfa_old = $row->id_hesabfa;
-                            //ToDo: number must int, what can i do
+                            //ToDo: number must int in hesabfa, what can i do
                             $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => $number), array('id' => $id_obj));
 
                             Ssbhesabfa_Admin_Functions::log(array("Invoice Number changed. Old Number: $id_hesabfa_old. New ID: $number"));
@@ -142,11 +142,13 @@ class Ssbhesabfa_Webhook
             return false;
         }
 
+        $id_product = 0;
+        $id_attribute = 0;
+
         $json = json_decode($item->Tag);
         if (is_object($json)) {
             $id_product = $json->id_product;
-        } else {
-            $id_product = 0;
+            $id_attribute = $json->id_attribute;
         }
 
         //check if Tag not set in hesabfa
@@ -157,7 +159,7 @@ class Ssbhesabfa_Webhook
         }
 
         //check if product exist in prestashop
-        $id_obj = Ssbhesabfa_Admin_Functions::getObjectId('product', $id_product);
+        $id_obj = Ssbhesabfa_Admin_Functions::getObjectId('product', $id_product, $id_attribute);
         if ($id_obj > 0) {
             $product = new WC_Product($id_product);
 
@@ -167,31 +169,53 @@ class Ssbhesabfa_Webhook
 
             if (is_object($row) && $row->id_hesabfa != $item->Code) {
                 $id_hesabfa_old = $row->id_hesabfa;
-                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$item->Code), array('id' => $id_obj));
+                //update all variation
+                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$item->Code), array('id_ps' => $id_product, 'type' => 'product'));
 
                 Ssbhesabfa_Admin_Functions::log(array("Item Code changed. Old ID: $id_hesabfa_old. New ID: $item->Code"));
-
             }
 
             //2.set new Price
             if (get_option('ssbhesabfa_item_update_price')) {
-                //ToDo check currency calculate
-                $price = Ssbhesabfa::getPriceInHesabfaDefaultCurrency($product->price);
-                if ($item->SellPrice != $price) {
-                    $old_price = $product->get_price;
-                    $product->set_price($item->SellPrice);
+                if ($id_attribute != 0) {
+                    //ToDo check currency calculate
+                    $price = Ssbhesabfa::getPriceInHesabfaDefaultCurrency($product->get_price);
+                    if ($item->SellPrice != $price) {
+                        $old_price = $product->get_price;
+                        $product->set_price($item->SellPrice);
 
-                    Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                    }
+                } else {
+                    $variation = new WC_Product_Variation($id_attribute);
+                    //ToDo check currency calculate
+                    $price = Ssbhesabfa::getPriceInHesabfaDefaultCurrency($variation->get_price);
+                    if ($item->SellPrice != $price) {
+                        $old_price = $variation->get_price;
+                        $variation->set_price($item->SellPrice);
+
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                    }
                 }
             }
 
             //3.set new Quantity
             if (get_option('ssbhesabfa_item_update_quantity')) {
-                if ($item->Stock != $product->get_stock_quantity()) {
-                    $old_quantity = $product->get_stock_quantity();
-                    $product->set_stock_quantity($item->Stock);
+                if ($id_attribute != 0) {
+                    if ($item->Stock != $product->get_stock_quantity()) {
+                        $old_quantity = $product->get_stock_quantity();
+                        $product->set_stock_quantity($item->Stock);
 
-                    Ssbhesabfa_Admin_Functions::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                    }
+                } else {
+                    $variation = new WC_Product_Variation($id_attribute);
+                    if ($item->Stock != $variation->get_stock_quantity()) {
+                        $old_quantity = $variation->get_stock_quantity();
+                        $variation->set_stock_quantity($item->Stock);
+
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                    }
                 }
             }
         }

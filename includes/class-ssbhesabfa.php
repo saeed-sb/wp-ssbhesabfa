@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    1.0.6
+ * @version    1.0.7
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -60,7 +60,7 @@ class Ssbhesabfa {
 		if ( defined( 'SSBHESABFA_VERSION' ) ) {
 			$this->version = SSBHESABFA_VERSION;
 		} else {
-			$this->version = '1.0.6';
+			$this->version = '1.0.7';
 		}
 		$this->plugin_name = 'ssbhesabfa';
 
@@ -139,6 +139,9 @@ class Ssbhesabfa {
 	 */
 	private function define_admin_hooks() {
         $plugin_admin = new Ssbhesabfa_Admin( $this->get_plugin_name(), $this->get_version() );
+
+        //Related to check DB ver on plugin update
+        $this->loader->add_action( 'plugins_loaded', $plugin_admin, 'ssbhesabfa_update_db_check' );
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );

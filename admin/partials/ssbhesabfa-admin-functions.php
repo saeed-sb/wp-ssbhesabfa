@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.0.6
+ * @version    1.0.7
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -10,19 +10,20 @@
  */
 class Ssbhesabfa_Admin_Functions
 {
-    public static function getObjectId($type, $id_ps)
+    public static function getObjectId($type, $id_ps, $id_ps_attribute = 0)
     {
         if (!isset($type) || !isset($id_ps)) {
             return false;
         }
 
         global $wpdb;
-        $row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_ps AND `obj_type` = '$type'");
+        $row = $wpdb->get_row("SELECT `id` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_ps AND `id_ps_attribute` = $id_ps_attribute AND `obj_type` = '$type'");
 
-        if (is_object($row))
+        if (is_object($row)) {
             return (int)$row->id;
-        else
+        } else {
             return false;
+        }
     }
 
     public static function getObjectIdByCode($type, $id_hesabfa)
@@ -38,6 +39,18 @@ class Ssbhesabfa_Admin_Functions
             return $row->id;
         else
             return false;
+    }
+
+    public static function getItemCodeByProductId($id_product, $id_attribute = 0)
+    {
+        global $wpdb;
+        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_product AND `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
+
+        if (is_object($row)) {
+            return (int)$row->id_hesabfa;
+        } else {
+            return null;
+        }
     }
 
     public static function isDateInFiscalYear($date) {
@@ -57,45 +70,86 @@ class Ssbhesabfa_Admin_Functions
         return false;
     }
 
+    public function getProductVariations($id_product) {
+        if (!isset($id_product)) {
+            return false;
+        }
+
+        $product = wc_get_product($id_product);
+        if ($product->is_type('variable')) {
+            $children = $product->get_children($args = '', $output = OBJECT);
+            $variations = array();
+            foreach ($children as $value) {
+                $product_variatons = new WC_Product_Variation($value);
+                if ($product_variatons->exists() && $product_variatons->variation_is_visible()) {
+                    $variations[] = $product_variatons;
+                }
+            }
+            return $variations;
+        }
+        return false;
+    }
+
     //Items
-    public function setItem($id_product, $setQuantity = 0)
+    public function setItem($id_product)
     {
         if (!isset($id_product)) {
             return false;
         }
 
-        $code = $this->getObjectId('product', $id_product);
+        $code = $this->getItemCodeByProductId($id_product);
         if (!$code) {
             $code = null;
         }
-
         $product = new WC_Product($id_product);
-        $itemType = ($product->is_virtual() == 1 ? 1 : 0);
-        $quantity = $setQuantity ? $product->get_stock_quantity() : null;
         $categories = $product->get_category_ids();
-        $name = mb_substr($product->get_title(),0,99);
 
         $item = array(
             'Code' => $code,
-            'Name' => $name,
-            'ItemType' => $itemType,
+            'Name' => mb_substr($product->get_title(), 0, 99),
+            'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
             'Barcode' => $product->get_sku(),
             'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
-            'OpeningQuantity' => $quantity,
-            'Tag' => json_encode(array('id_product' => $id_product)),
+            'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
             'NodeFamily' => $this->getCategoryPath($categories[0]),
             'ProductCode' => $id_product,
         );
+        $this->saveItem($item, $id_product);
 
+        $variations = $this->getProductVariations($id_product);
+        if ($variations != false) {
+            foreach ($variations as $variation) {
+                $id_attribute = $variation->get_id();
+                $code = $this->getItemCodeByProductId($id_product, $id_attribute);
+                if (!$code) {
+                    $code = null;
+                }
+                $item = array(
+                    'Code' => $code,
+                    'Name' => mb_substr($variation->get_name(), 0, 99),
+                    'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
+                    'Barcode' => $variation->get_sku(),
+                    'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),
+                    'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
+                    'NodeFamily' => $this->getCategoryPath($categories[0]),
+                    'ProductCode' => $id_product,
+                );
+                $this->saveItem($item, $id_product, $id_attribute);
+            }
+        }
+    }
+
+    public function saveItem($item, $id_product, $id_attribute = 0) {
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->itemSave($item);
         if ($response->Success) {
             global $wpdb;
-            if ($code == null) {
+            if ($item['Code'] == null) {
                 $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
                     'id_hesabfa' => (int)$response->Result->Code,
                     'obj_type' => 'product',
                     'id_ps' => $id_product,
+                    'id_ps_attribute' => $id_attribute,
                 ));
 
                 Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item code: ".(string)$response->Result->Code.". Product ID: $id_product"));
@@ -104,7 +158,8 @@ class Ssbhesabfa_Admin_Functions
                     'id_hesabfa' => (int)$response->Result->Code,
                     'obj_type' => 'product',
                     'id_ps' => $id_product,
-                ), array('id' => $this->getObjectId('product', $id_product)));
+                    'id_ps_attribute' => $id_attribute,
+                ), array('id' => $this->getObjectId('product', $id_product, $id_attribute)));
 
                 Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$response->Result->Code.". Product ID: $id_product"));
             }
@@ -351,7 +406,7 @@ class Ssbhesabfa_Admin_Functions
     }
 
     //Invoice
-    public function setOrder($id_order, $orderType = 0, $reference = null)
+    public function setOrder($id_order, $orderType = 0)
     {
         if (!isset($id_order)) {
             return false;
@@ -379,9 +434,9 @@ class Ssbhesabfa_Admin_Functions
 
         $products = $order->get_items();
         foreach ($products as $key => $product) {
-            $itemCode = $this->getObjectId('product', $product['product_id']);
+            $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
             // add product before insert invoice
-            if (!$itemCode) {
+            if ($itemCode == null) {
                 $itemCode = $this->setItem($product['product_id']);
             }
 
@@ -399,8 +454,9 @@ class Ssbhesabfa_Admin_Functions
         }
 
         $number = $this->getObjectId('order', $id_order);
-        if (!$number)
+        if (!$number) {
             $number = null;
+        }
 
         $date_obj = $order->get_date_created();
         switch ($orderType) {
@@ -414,17 +470,13 @@ class Ssbhesabfa_Admin_Functions
                 $date = $date_obj->date('Y-m-d H:i:s');
         }
 
-        if ($reference === null) {
-            $reference = $id_order;
-        }
-
         $data = array (
             'Number' => $number,
             'InvoiceType' => $orderType,
             'ContactCode' => $contactCode,
             'Date' => $date,
             'DueDate' => $date,
-            'Reference' => $reference,
+            'Reference' => $id_order,
             'Status' => 2,
             'Tag' => json_encode(array('id_order' => $id_order)),
             'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
@@ -554,7 +606,7 @@ class Ssbhesabfa_Admin_Functions
     }
 
     //Export
-    public function exportProducts($setQuantity = 0)
+    public function exportProducts()
     {
         $args = array('post_type' => 'product', 'posts_per_page' => -1);
         $products = get_posts($args);
@@ -568,21 +620,37 @@ class Ssbhesabfa_Admin_Functions
             $id_obj = $this->getObjectId('product', $id_product);
             if (!$id_obj) {
                 $product = new WC_Product($id_product);
-                $itemType = ($product->is_virtual() == 1 ? 1 : 0);
-                $quantity = $setQuantity ? $product->get_stock_quantity() : null;
                 $categories = $product->get_category_ids();
                 $name = mb_substr($product->get_title(),0,99);
 
                 array_push($items, array(
                     'Name' => $name,
-                    'ItemType' => $itemType,
+                    'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
                     'Barcode' => $product->get_sku(),
                     'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
-                    'OpeningQuantity' => $quantity,
-                    'Tag' => json_encode(array('id_product' => $id_product)),
+                    'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 ));
+            }
+
+            $variations = $this->getProductVariations($id_product);
+            if ($variations != false) {
+                foreach ($variations as $variation) {
+                    $id_attribute = $variation->get_id();
+                    $id_obj = $this->getObjectId('product', $id_product, $id_attribute);
+                    if (!$id_obj) {
+                        array_push($items, array(
+                            'Name' => mb_substr($variation->get_name(), 0, 99),
+                            'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
+                            'Barcode' => $variation->get_sku(),
+                            'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),
+                            'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
+                            'NodeFamily' => $this->getCategoryPath($categories[0]),
+                            'ProductCode' => $id_product,
+                        ));
+                    }
+                }
             }
         }
 
@@ -598,6 +666,7 @@ class Ssbhesabfa_Admin_Functions
                         'id_hesabfa' => (int)$item->Code,
                         'obj_type' => 'product',
                         'id_ps' => (int)$json->id_product,
+                        'id_ps_attribute' => (int)$json->id_attribute,
                     ));
                     Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item Code: ".(string)$item->Code.". Product ID: $id_product"));
                 }
@@ -616,26 +685,50 @@ class Ssbhesabfa_Admin_Functions
         $items = array();
 
         foreach ($products as $item) {
-            //do if product exists in hesabfa
-            $id_obj = $this->getObjectId('product', $item->ID);
-            if ($id_obj != false) {
-                $product = new WC_Product($item->ID);
-                $quantity = $product->get_stock_quantity();
-                $price = $product->get_price();
+            $variations = $this->getProductVariations($item->ID);
+            if (!$variations) {
+                //do if product exists in hesabfa
+                $id_obj = $this->getObjectId('product', $item->ID);
+                if ($id_obj != false) {
+                    $product = new WC_Product($item->ID);
+                    $quantity = $product->get_stock_quantity();
+                    $price = $product->get_price();
 
-                global $wpdb;
-                $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = ". $id_obj ." AND `obj_type` = 'product'");
+                    global $wpdb;
+                    $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = ". $id_obj ." AND `obj_type` = 'product'");
 
-                if (is_object($product) && is_object($row) && $quantity > 0 && $price > 0) {
-                    array_push($items, array(
-                        'Code' => $row->id_hesabfa,
-                        'Quantity' => $quantity,
-                        'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
-                    ));
+                    if (is_object($product) && is_object($row) && $quantity > 0 && $price > 0) {
+                        array_push($items, array(
+                            'Code' => $row->id_hesabfa,
+                            'Quantity' => $quantity,
+                            'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+                        ));
+                    }
+                }
+            } else {
+                foreach ($variations as $variation) {
+                    //do if product exists in hesabfa
+                    $id_attribute = $variation->get_id();
+                    $id_obj = $this->getObjectId('product', $item->ID, $id_attribute);
+                    if ($id_obj != false) {
+                        $quantity = $variation->get_stock_quantity();
+                        $price = $variation->get_price();
+
+                        global $wpdb;
+                        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = ". $id_obj ." AND `obj_type` = 'product'");
+
+                        if (is_object($variation) && is_object($row) && $quantity > 0 && $price > 0) {
+                            array_push($items, array(
+                                'Code' => $row->id_hesabfa,
+                                'Quantity' => $quantity,
+                                'UnitPrice' => $this->getPriceInHesabfaDefaultCurrency($price),
+                            ));
+                        }
+                    }
                 }
             }
         }
-var_dump($items);
+
         //call API when at least one product exists
         if (!empty($items)) {
             $hesabfa = new Ssbhesabfa_Api();
@@ -742,7 +835,7 @@ var_dump($items);
                 $current_status = $order->get_status();
                 foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
                     if ($status == $current_status) {
-                        $this->setOrder($id_order, 2, $id_order);
+                        $this->setOrder($id_order, 2);
                     }
                 }
             }

@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,10 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * delete contact when customer deleted
 * change order reference to order ID
 * fix notice messages
+
+= 1.0.7 - 04.10.2020 =
+* compatible with product variations
+* fix
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.

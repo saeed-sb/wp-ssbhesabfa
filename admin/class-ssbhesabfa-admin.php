@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.0.6
+ * @version    1.0.7
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -46,12 +46,31 @@ class Ssbhesabfa_Admin {
     }
 
 	/**
+	 * Check DB ver on plugin update and do necessary actions
+	 *
+	 * @since    1.0.7
+	 */
+	public function ssbhesabfa_update_db_check() {
+        $current_db_ver = get_site_option('ssbhesabfa_db_version');
+        if ($current_db_ver === false || $current_db_ver < 1.1) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . "ssbhesabfa";
+
+            $sql = "ALTER TABLE $table_name
+                    ADD `id_ps_attribute` INT(11) UNSIGNED NULL DEFAULT 0 AFTER id_ps;";
+
+            if ($wpdb->query($sql) !== false) {
+                update_option('ssbhesabfa_db_version', 1.1);
+            }
+        }
+    }
+
+	/**
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
 		/**
 		 * This function is provided for demonstration purposes only.
 		 *
@@ -65,7 +84,6 @@ class Ssbhesabfa_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/ssbhesabfa-admin.css', array(), $this->version, 'all' );
-
 	}
 
 	/**
@@ -88,7 +106,6 @@ class Ssbhesabfa_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/ssbhesabfa-admin.js', array('jquery'), $this->version, false );
-
 	}
 
     private function load_dependencies() {
@@ -339,7 +356,7 @@ class Ssbhesabfa_Admin {
         foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
             if ($status == $to) {
                 $function = new Ssbhesabfa_Admin_Functions();
-                $function->setOrder($id_order, 2, $id_order);
+                $function->setOrder($id_order, 2);
             }
         }
     }

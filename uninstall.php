@@ -18,4 +18,4 @@ foreach ($options as $option) {
     delete_option($option->option_name);
 }
 
-$wpdb->delete($wpdb->prefix.'ssbhesabfa');
+$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}ssbhesabfa");
