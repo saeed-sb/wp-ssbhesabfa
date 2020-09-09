@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -57,16 +57,24 @@ class Ssbhesabfa_Admin_Functions
         $hesabfaApi = new Ssbhesabfa_Api();
         $fiscalYear = $hesabfaApi->settingGetFiscalYear();
 
-        if ($fiscalYear->Success) {
-            $fiscalYearStartTimeStamp = strtotime($fiscalYear->Result->StartDate);
-            $fiscalYearEndTimeStamp = strtotime($fiscalYear->Result->EndDate);
-            $dateTimeStamp = strtotime($date);
+        if (is_object($fiscalYear)) {
+            if ($fiscalYear->Success) {
+                $fiscalYearStartTimeStamp = strtotime($fiscalYear->Result->StartDate);
+                $fiscalYearEndTimeStamp = strtotime($fiscalYear->Result->EndDate);
+                $dateTimeStamp = strtotime($date);
 
-            if ($dateTimeStamp >= $fiscalYearStartTimeStamp && $dateTimeStamp <= $fiscalYearEndTimeStamp) {
-                return true;
+                if ($dateTimeStamp >= $fiscalYearStartTimeStamp && $dateTimeStamp <= $fiscalYearEndTimeStamp) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                Ssbhesabfa_Admin_Functions::log(array("Cannot get FiscalDate. Error Code: $fiscalYear->ErrroCode. Error Message: $fiscalYear->ErrorMessage"));
+                return false;
             }
-            return false;
         }
+
+        Ssbhesabfa_Admin_Functions::log(array("Cannot connect to Hesabfa for get FiscalDate."));
         return false;
     }
 
@@ -215,7 +223,7 @@ class Ssbhesabfa_Admin_Functions
         $customer = new WC_Customer($id_customer);
         $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
         if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
-            $name = __('Guest Customer');
+            $name = __('Not Define', 'ssbhesabfa');
         }
         $data = array (
             array(
@@ -266,6 +274,73 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 
+    public function setGuestCustomer($id_order)
+    {
+        if (!isset($id_order)) {
+            return false;
+        }
+
+        $order = new WC_Order($id_order);
+
+//        $code = $this->getContactCodeByEmail($order->get_billing_email());
+//        if (!$code) {
+            $code = null;
+//        }
+
+        $name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
+        if (empty($order->get_billing_first_name()) && empty($order->get_billing_last_name())) {
+            $name = __('Guest Customer', 'ssbhesabfa');
+        }
+        $data = array (
+            array(
+                'Code' => $code,
+                'Name' => $name,
+                'FirstName' => $order->get_billing_first_name(),
+                'LastName' => $order->get_billing_last_name(),
+                'ContactType' => 1,
+                'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
+                'Address' => $order->get_billing_address_1() .' '.$order->get_billing_address_2(),
+                'City' => $order->get_billing_city(),
+                'State' => $order->get_billing_state(),
+                'Country' => $order->get_billing_country(),
+                'PostalCode' => preg_replace("/[^0-9]/", '', $order->get_billing_postcode()),
+                'Phone' => preg_replace("/[^0-9]/", "", $order->get_billing_phone()),
+                'Email' => $this->validEmail($order->get_billing_email()) ? $order->get_billing_email() : null,
+                'Tag' => json_encode(array('id_customer' => 0)),
+                'Note' => __('Customer registered as a GuestCustomer.', 'ssbhesabfa'),
+            )
+        );
+
+        $hesabfa = new Ssbhesabfa_Api();
+        $response = $hesabfa->contactBatchSave($data);
+
+        if ($response->Success) {
+            global $wpdb;
+            if ($code == null) {
+                $id_customer = 0;
+                $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                    'id_hesabfa' => (int)$response->Result[0]->Code,
+                    'obj_type' => 'customer',
+                    'id_ps' => $id_customer,
+                ));
+
+                Ssbhesabfa_Admin_Functions::log(array("Contact successfully added. Contact Code: ".(string)$response->Result[0]->Code.". Customer ID: GuestCustomer"));
+            } //else {
+//                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+//                    'id_hesabfa' => (int)$response->Result[0]->Code,
+//                    'obj_type' => 'customer',
+//                    'id_ps' => $id_customer,
+//                ), array('id' => $this->getObjectId('customer', $id_customer)));
+//
+//                Ssbhesabfa_Admin_Functions::log(array("Contact successfully updated. Contact Code: ".(string)$response->Result[0]->Code.". Customer ID: $id_customer"));
+//            }
+            return (int)$response->Result[0]->Code;
+        } else {
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
+            return false;
+        }
+    }
+
     public function setContactAddress($id_customer, $type = 'billing')
     {
         if (!isset($id_customer)) {
@@ -280,7 +355,7 @@ class Ssbhesabfa_Admin_Functions
 
         $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
         if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
-            $name = __('Guest Customer');
+            $name = __('Guest Customer', 'ssbhesabfa');
         }
 
         if ($type === 'first') {
@@ -405,6 +480,35 @@ class Ssbhesabfa_Admin_Functions
         return $isValid;
     }
 
+    public function getContactCodeByEmail($email) {
+        $queryInfo = array(
+            'SortBy' => 'Code',
+            'SortDesc' => true,
+            'Take' => 1,
+            'Skip' => 0,
+            'Filters' => array(array(
+                'Property' => 'Email',
+                'Operator' => '=',
+                'Value' => $email,
+            ))
+        );
+
+        $hesabfa = new Ssbhesabfa_Api();
+        $response = $hesabfa->contactGetContacts($queryInfo);
+
+        if (is_object($response)) {
+            if ($response->Success && $response->Result->TotalCount > 0) {
+                $contact_obj = $response->Result->List;
+
+                return (int)$contact_obj[0]->Code;
+            }
+        } else {
+            Ssbhesabfa_Admin_Functions::log(array("Cannot get Contact list. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
+        }
+
+        return false;
+    }
+
     //Invoice
     public function setOrder($id_order, $orderType = 0)
     {
@@ -415,18 +519,28 @@ class Ssbhesabfa_Admin_Functions
         $order = new WC_Order($id_order);
 
         $id_customer = $order->get_customer_id();
-        $contactCode = $this->getObjectId('customer', $id_customer);
 
-        if (!$contactCode) {
-            //set customer if not exists
-            $this->setContact($id_customer);
-        } elseif (get_option('ssbhesabfa_contact_address_status') == 1) {
-            // update customer name only
-            $this->setContactAddress($id_customer, 'first');
-        } elseif (get_option('ssbhesabfa_contact_address_status') == 2) {
-            $this->setContactAddress($id_customer, 'billing');
-        } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-            $this->setContactAddress($id_customer, 'shipping');
+        if ($id_customer !== 0) {
+            $contactCode = $this->getObjectId('customer', $id_customer);
+
+            if (!$contactCode) {
+                // set customer if not exists
+                $this->setContact($id_customer);
+            } elseif (get_option('ssbhesabfa_contact_address_status') == 1) {
+                // update customer name only
+                $this->setContactAddress($id_customer, 'first');
+            } elseif (get_option('ssbhesabfa_contact_address_status') == 2) {
+                $this->setContactAddress($id_customer, 'billing');
+            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
+                $this->setContactAddress($id_customer, 'shipping');
+            }
+        } else {
+            // set guest customer
+            $contactCode = $this->setGuestCustomer($id_order);
+            if (!$contactCode) {
+                // return false if cannot set guest customer
+                return false;
+            }
         }
 
         $items = array();
@@ -435,6 +549,7 @@ class Ssbhesabfa_Admin_Functions
         $products = $order->get_items();
         foreach ($products as $key => $product) {
             $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
+
             // add product before insert invoice
             if ($itemCode == null) {
                 $itemCode = $this->setItem($product['product_id']);
@@ -737,7 +852,7 @@ class Ssbhesabfa_Admin_Functions
                 Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - Opening quantity successfully added.'));
                 return true;
             } else {
-                Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - Cannot set Opening quantity. Error Message: ' . $response->ErrorMessage));
+                Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - Cannot set Opening quantity. Error Code: ' . $response->ErrorCode . '. Error Message: ' . $response->ErrorMessage));
                 return false;
             }
         } else {
@@ -758,8 +873,8 @@ class Ssbhesabfa_Admin_Functions
                 $customer = new WC_Customer($id_customer);
 
                 $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
-                if ($name == null) {
-                    $name = 'Not set!';
+                if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
+                    $name = __('Not Define', 'ssbhesabfa');
                 }
 
                 array_push($data, array(
@@ -783,6 +898,7 @@ class Ssbhesabfa_Admin_Functions
         if (!empty($data)) {
             $hesabfa = new Ssbhesabfa_Api();
             $response = $hesabfa->contactBatchSave($data);
+
             if ($response->Success) {
                 foreach ($response->Result as $item) {
                     $json = json_decode($item->Tag);
@@ -794,11 +910,11 @@ class Ssbhesabfa_Admin_Functions
                         'id_ps' => (int)$json->id_customer,
                     ));
 
-                    Ssbhesabfa_Admin_Functions::log(array("Contact successfully added. Contact Code: ".(string)$item->Code.". Customer ID: " . (string)$json->id_customer));
+                    Ssbhesabfa_Admin_Functions::log(array("Contact successfully added. Contact Code: ".$item->Code.". Customer ID: " . (int)$json->id_customer));
                 }
                 return count($response->Result);
             } else {
-                Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk contacts. Error Message: ".(string)$response->ErrorMessage.". Error Code: ".(string)$response->ErrorCode."."));
+                Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
             }
         }
 
@@ -859,7 +975,7 @@ class Ssbhesabfa_Admin_Functions
             return true;
         }
 
-        Ssbhesabfa_Admin_Functions::log(array("Cannot get bulk item. Error Message: ".(string)$response->ErrorMessage.". Error Code: ".(string)$response->ErrorCode."."));
+        Ssbhesabfa_Admin_Functions::log(array("Cannot get bulk item. Error Message: (string)$response->ErrorMessage. Error Code: (string)$response->ErrorCode."));
         return false;
     }
 

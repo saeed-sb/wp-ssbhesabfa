@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -42,7 +42,6 @@ class Ssbhesabfa_Admin {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->load_dependencies();
-
     }
 
 	/**
@@ -157,15 +156,6 @@ class Ssbhesabfa_Admin {
         echo '<div class="error"><p>' . __('Hesabfa Plugin cannot works! because WooCommerce currency in not match with Hesabfa.', 'ssbhesabfa') . '</p></div>';
     }
 
-    /**
-     * Incorrect hesabfa Fiscal year notice for the admin area.
-     *
-     * @since    1.0.6
-     */
-    public function ssbhesabfa_fiscal_notice() {
-        echo '<div class="error"><p>' . __('The fiscal year has passed or not arrived. Please check the fiscal year settings in Hesabfa.', 'ssbhesabfa') . '</p></div>';
-    }
-
     /*
      * Action - Ajax 'export products' from Hesabfa/Export tab
      * @since	1.0.0
@@ -174,7 +164,8 @@ class Ssbhesabfa_Admin {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
 
-            if (!$func->exportProducts()) {
+            $update_count = $func->exportProducts();
+            if ($update_count === false) {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productExportResult=false');
             } else {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productExportResult=true&processed=' . $update_count);
@@ -212,7 +203,8 @@ class Ssbhesabfa_Admin {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
 
-            if (!$func->exportCustomers()) {
+            $update_count = $func->exportCustomers();
+            if ($update_count === false) {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&customerExportResult=false');
             } else {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&customerExportResult=true&processed=' . $update_count);

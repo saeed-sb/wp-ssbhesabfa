@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -60,7 +60,7 @@ class Ssbhesabfa {
 		if ( defined( 'SSBHESABFA_VERSION' ) ) {
 			$this->version = SSBHESABFA_VERSION;
 		} else {
-			$this->version = '1.0.7';
+			$this->version = '1.0.8';
 		}
 		$this->plugin_name = 'ssbhesabfa';
 
@@ -158,10 +158,6 @@ class Ssbhesabfa {
                     $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_currency_notice');
                 }
 
-                if (!Ssbhesabfa_Admin_Functions::isDateInFiscalYear(date('Y-m-d H:i:s'))) {
-                    $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_fiscal_notice');
-                    update_option('ssbhesabfa_live_mode', false);
-                }
                 //Runs when a new order added.
 //                $this->loader->add_action('woocommerce_thankyou', $plugin_admin, 'ssbhesabfa_hook_new_order', 10, 1);
 //                $this->loader->add_action('woocommerce_new_order', $plugin_admin, 'ssbhesabfa_hook_new_order', 10, 1);

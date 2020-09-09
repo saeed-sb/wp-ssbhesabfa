@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Api
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/api
@@ -25,6 +25,11 @@ class Ssbhesabfa_Api
             'password' => get_option('ssbhesabfa_account_password'),
         ), $data);
 
+        //Debug mode
+        if (get_option('ssbhesabfa_debug_mode')) {
+            Ssbhesabfa_Admin_Functions::log(array("Debug Mode - Method: $method. Data: " . print_r($data, true)));
+        }
+
         $options = array(
             'body' => wp_json_encode($body),
             'headers' => array(
@@ -40,6 +45,11 @@ class Ssbhesabfa_Api
 
         $wp_remote_post = wp_remote_post($endpoint, $options);
         $result = json_decode(wp_remote_retrieve_body($wp_remote_post));
+
+        //Debug mode
+        if (get_option('ssbhesabfa_debug_mode')) {
+            Ssbhesabfa_Admin_Functions::log(array("Debug Mode - Result: " . print_r($result, true)));
+        }
 
         //fix API limit request - Maximum request per minutes is 60 times,
         sleep(1);

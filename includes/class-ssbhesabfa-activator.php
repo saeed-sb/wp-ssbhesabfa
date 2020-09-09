@@ -6,7 +6,7 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -26,6 +26,7 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_webhook_password', bin2hex(openssl_random_pseudo_bytes(16)));
         add_option('ssbhesabfa_last_log_check_id', 0);
         add_option('ssbhesabfa_live_mode', 0);
+        add_option('ssbhesabfa_debug_mode', 0);
         add_option('ssbhesabfa_contact_address_status', 1);
         add_option('ssbhesabfa_contact_node_family', 'مشتریان فروشگاه آن‌لاین');
 

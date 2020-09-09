@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -316,12 +316,12 @@ class Ssbhesabfa_Setting {
     public static function ssbhesabfa_export_setting() {
         // Export - Bulk product export offers
         $productExportResult = (isset($_GET['productExportResult'])) ? (bool)wc_clean($_GET['productExportResult']) : null;
-        if (!is_null($productExportResult) && $productExportResult) {
+        if (!is_null($productExportResult) && $productExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
             echo '<div class="updated">';
             echo '<p>' . sprintf(__('Export product completed. %s product added/updated.', 'ssbhesabfa'), $processed);
             echo '</div>';
-        } elseif (!is_null($productExportResult) && !$productExportResult) {
+        } elseif (!is_null($productExportResult) && $productExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export products fail. Please check the log file.', 'ssbhesabfa');
             echo '</div>';
@@ -329,11 +329,11 @@ class Ssbhesabfa_Setting {
 
         // Export - Product opening quantity export offers
         $productOpeningQuantityExportResult = (isset($_GET['productOpeningQuantityExportResult'])) ? (bool)wc_clean($_GET['productOpeningQuantityExportResult']) : null;
-        if (!is_null($productOpeningQuantityExportResult) && $productOpeningQuantityExportResult) {
+        if (!is_null($productOpeningQuantityExportResult) && $productOpeningQuantityExportResult === 'true') {
             echo '<div class="updated">';
             echo '<p>' . __('Export product opening quantity completed.');
             echo '</div>';
-        } elseif (!is_null($productOpeningQuantityExportResult) && !$productOpeningQuantityExportResult) {
+        } elseif (!is_null($productOpeningQuantityExportResult) && $productOpeningQuantityExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export product opening quantity fail. Please check the log file.', 'ssbhesabfa');
             echo '</div>';
@@ -341,13 +341,12 @@ class Ssbhesabfa_Setting {
 
         // Export - Bulk customer export offers
         $customerExportResult = (isset($_GET['customerExportResult'])) ? wc_clean($_GET['customerExportResult']) : null;
-
-        if (!is_null($customerExportResult) && $customerExportResult) {
+        if (!is_null($customerExportResult) && $customerExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
             echo '<div class="updated">';
             echo '<p>' . sprintf(__('Export customers completed. %s product added/updated.', 'ssbhesabfa'), $processed);
             echo '</div>';
-        } elseif (!is_null($customerExportResult) && !$customerExportResult) {
+        } elseif (!is_null($customerExportResult) && $customerExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export customers fail. Please check the log file.', 'ssbhesabfa');
             echo '</div>';
@@ -502,7 +501,6 @@ class Ssbhesabfa_Setting {
         <?php
     }
 
-
     public static function ssbhesabfa_set_webhook() {
         $url = get_site_url() . '/index.php?ssbhesabfa_webhook=1&token=' . substr(wp_hash(AUTH_KEY . 'ssbhesabfa/webhook'), 0, 10);
 
@@ -526,6 +524,18 @@ class Ssbhesabfa_Setting {
                     echo '<div class="error">';
                     echo '<p>' . __('Cannot check the last change ID. Error Message: ', 'ssbhesabfa')  . $changes->ErrorMessage . '</p>';
                     echo '</div>';
+
+                    Ssbhesabfa_Admin_Functions::log(array("Cannot get item changes. Error Message: $changes->ErrorMessage. Error Code: $changes->ErrorCode"));
+                }
+
+
+                //check if date in fiscalYear
+                if (Ssbhesabfa_Admin_Functions::isDateInFiscalYear(date('Y-m-d H:i:s')) === 0) {
+                    echo '<div class="error">';
+                    echo '<p>' . __('The fiscal year has passed or not arrived. Please check the fiscal year settings in Hesabfa.', 'ssbhesabfa') . '</p>';
+                    echo '</div>';
+
+                    update_option('ssbhesabfa_live_mode', 0);
                 }
 
                 //check the Hesabfa default currency
@@ -547,6 +557,8 @@ class Ssbhesabfa_Setting {
                     echo '<div class="error">';
                     echo '<p>' . __('Cannot check the Hesabfa default currency. Error Message: ') . $default_currency->ErrorMessage . '</p>';
                     echo '</div>';
+
+                    Ssbhesabfa_Admin_Functions::log(array("Cannot check the Hesabfa default currency. Error Message: $default_currency->ErrorMessage. Error Code: $default_currency->ErrorCode"));
                 }
 
                 if (get_option('ssbhesabfa_live_mode')) {
@@ -560,6 +572,8 @@ class Ssbhesabfa_Setting {
                 echo '<div class="error">';
                 echo '<p>' . __('Cannot set Hesabfa webHook. Error Message:') . $response->ErrorMessage . '</p>';
                 echo '</div>';
+
+                Ssbhesabfa_Admin_Functions::log(array("Cannot set Hesabfa webHook. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode"));
             }
         } else {
             update_option('ssbhesabfa_live_mode', 0);
@@ -567,6 +581,8 @@ class Ssbhesabfa_Setting {
             echo '<div class="error">';
             echo '<p>' . __('Cannot connect to Hesabfa servers. Please check your Internet connection') . '</p>';
             echo '</div>';
+
+            Ssbhesabfa_Admin_Functions::log(array("Cannot connect to Hesabfa servers. Please check your Internet connection"));
         }
 
         return $response;
@@ -598,6 +614,7 @@ class Ssbhesabfa_Setting {
             echo '<p>' . __('Cannot get Banks detail.', 'ssbhesabfa') . '</p>';
             echo '</div>';
 
+            Ssbhesabfa_Admin_Functions::log(array("Cannot get banks detail. Error Code: $banks->ErrorCode. Error Message: $banks->ErrorMessage."));
             return array('0' => __('Cannot get Banks detail.', 'ssbhesabfa'));
         }
     }

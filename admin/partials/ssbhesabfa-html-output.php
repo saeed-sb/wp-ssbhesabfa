@@ -1,7 +1,7 @@
 <?php
 /*
  * @class      Ssbhesabfa_Html_output
- * @version    1.0.7
+ * @version    1.0.8
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/output
