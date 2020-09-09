@@ -144,7 +144,7 @@ class Ssbhesabfa_Setting {
         $fields[] = array('title' => __('Invoice Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'invoice_options');
 
         $fields[] = array(
-            'title' => __('Add invoice in which status'),
+            'title' => __('Add invoice in which status', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_status',
             'type' => 'multiselect',
             'options' => array(
@@ -160,7 +160,7 @@ class Ssbhesabfa_Setting {
         );
 
         $fields[] = array(
-            'title' => __('Return sale invoice status'),
+            'title' => __('Return sale invoice status', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_invoice_return_status',
             'type' => 'multiselect',
             'options' => array(
@@ -210,7 +210,7 @@ class Ssbhesabfa_Setting {
         $fields[] = array('title' => __('Payment methods Settings', 'ssbhesabfa'), 'type' => 'title', 'desc' => '', 'id' => 'payment_options');
 
         $fields[] = array(
-            'title' => __('Add payment in which status'),
+            'title' => __('Add payment in which status', 'ssbhesabfa'),
             'id' => 'ssbhesabfa_payment_status',
             'type' => 'multiselect',
             'options' => array(
@@ -555,7 +555,7 @@ class Ssbhesabfa_Setting {
                     }
                 } else {
                     echo '<div class="error">';
-                    echo '<p>' . __('Cannot check the Hesabfa default currency. Error Message: ') . $default_currency->ErrorMessage . '</p>';
+                    echo '<p>' . __('Cannot check the Hesabfa default currency. Error Message: ', 'ssbhesabfa') . $default_currency->ErrorMessage . '</p>';
                     echo '</div>';
 
                     Ssbhesabfa_Admin_Functions::log(array("Cannot check the Hesabfa default currency. Error Message: $default_currency->ErrorMessage. Error Code: $default_currency->ErrorCode"));
@@ -570,7 +570,7 @@ class Ssbhesabfa_Setting {
                 update_option('ssbhesabfa_live_mode', 0);
 
                 echo '<div class="error">';
-                echo '<p>' . __('Cannot set Hesabfa webHook. Error Message:') . $response->ErrorMessage . '</p>';
+                echo '<p>' . __('Cannot set Hesabfa webHook. Error Message:', 'ssbhesabfa') . $response->ErrorMessage . '</p>';
                 echo '</div>';
 
                 Ssbhesabfa_Admin_Functions::log(array("Cannot set Hesabfa webHook. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode"));
@@ -579,7 +579,7 @@ class Ssbhesabfa_Setting {
             update_option('ssbhesabfa_live_mode', 0);
 
             echo '<div class="error">';
-            echo '<p>' . __('Cannot connect to Hesabfa servers. Please check your Internet connection') . '</p>';
+            echo '<p>' . __('Cannot connect to Hesabfa servers. Please check your Internet connection', 'ssbhesabfa') . '</p>';
             echo '</div>';
 
             Ssbhesabfa_Admin_Functions::log(array("Cannot connect to Hesabfa servers. Please check your Internet connection"));
@@ -595,7 +595,7 @@ class Ssbhesabfa_Setting {
 
         if (is_object($banks) && $banks->Success) {
             $available_banks = array();
-            $available_banks[-1] = __('No need to set!');
+            $available_banks[-1] = __('No need to set!', 'ssbhesabfa');
             foreach ($banks->Result as $bank) {
                 if ($bank->Currency == get_woocommerce_currency() || (get_woocommerce_currency() == 'IRT' && $bank->Currency == 'IRR')) {
                     $available_banks[$bank->Code] = $bank->Name . ' - ' . $bank->Branch . ' - ' . $bank->AccountNumber;

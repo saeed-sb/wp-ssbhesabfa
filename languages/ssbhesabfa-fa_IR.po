@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-09-10 00:58+0430\n"
-"PO-Revision-Date: 2020-09-10 01:02+0430\n"
+"POT-Creation-Date: 2020-09-10 01:14+0430\n"
+"PO-Revision-Date: 2020-09-10 01:15+0430\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -141,8 +141,6 @@ msgid ""
 "For more information and a full guide to how to use Hesabfa and WooCommerce "
 "Plugin, visit Hesabfa’s website and go to the “Accounting School” menu."
 msgstr ""
-"برای کسب اطلاعات بیشتر و راهنمای استفاده از حسابفا و افزونه ووکامرس به وب "
-"سایت حسابفا، قسمت مدرسه حسابداری مراجعه کنید."
 
 #: admin/partials/ssbhesabfa-admin-setting.php:53
 msgid "Catalog Settings"
@@ -366,7 +364,7 @@ msgstr "همسان‌سازی پایان یافت. تمامی محصولات ب�
 
 #: admin/partials/ssbhesabfa-admin-setting.php:425
 msgid "Sync completed; No product added/updated."
-msgstr "همسان‌سازی پایان یافت. هیچ محصول به‌روزرسانی/افزوده نشد."
+msgstr ""
 
 #: admin/partials/ssbhesabfa-admin-setting.php:436
 #, php-format
@@ -457,7 +455,7 @@ msgstr "امکان دریافت اطلاعات بانک‌ها نیست."
 
 #: admin/partials/ssbhesabfa-html-output.php:288
 msgid "Select a page&hellip;"
-msgstr ""
+msgstr "انتخاب ‫دسته‌بندی"
 
 #: admin/partials/ssbhesabfa-html-output.php:379
 msgid "Settings were saved successfully."
