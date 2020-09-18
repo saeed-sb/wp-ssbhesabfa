@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,11 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * add getContactCodeByEmail function
 * add DebugMode
 * fix webhook quantity change bug
+
+= 1.0.9 - 18.10.2020 =
+* fix combination price in convert currency
+* fix id_attribute define in webhook
+* improve lastcheck id checker
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.

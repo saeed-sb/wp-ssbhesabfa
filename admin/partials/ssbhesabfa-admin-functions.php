@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.0.8
+ * @version    1.0.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -117,11 +117,15 @@ class Ssbhesabfa_Admin_Functions
             'Name' => mb_substr($product->get_title(), 0, 99),
             'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
             'Barcode' => $product->get_sku(),
-            'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
             'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
             'NodeFamily' => $this->getCategoryPath($categories[0]),
             'ProductCode' => $id_product,
         );
+
+        if (!get_option('ssbhesabfa_item_update_price')) {
+            $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency($product->get_price());
+        }
+
         $this->saveItem($item, $id_product);
 
         $variations = $this->getProductVariations($id_product);
@@ -137,11 +141,15 @@ class Ssbhesabfa_Admin_Functions
                     'Name' => mb_substr($variation->get_name(), 0, 99),
                     'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
                     'Barcode' => $variation->get_sku(),
-                    'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),
                     'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 );
+
+                if (!get_option('ssbhesabfa_item_update_price')) {
+                    $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency($variation->get_price());
+                }
+
                 $this->saveItem($item, $id_product, $id_attribute);
             }
         }
@@ -651,6 +659,22 @@ class Ssbhesabfa_Admin_Functions
         return $price;
     }
 
+    public static function getPriceInWooCommerceDefaultCurrency($price)
+    {
+        if (!isset($price)) {
+            return false;
+        }
+
+        $woocommerce_currency = get_woocommerce_currency();
+        $hesabfa_currency = get_option('ssbhesabfa_hesabfa_default_currency');
+
+        if ($hesabfa_currency == 'IRR' && $woocommerce_currency == 'IRT') {
+            $price /= 10;
+        }
+
+        return $price;
+    }
+
 //    public function convert_currency( $price ) {
 //
 //        switch ( get_woocommerce_currency() ) {
@@ -747,6 +771,7 @@ class Ssbhesabfa_Admin_Functions
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 ));
+
             }
 
             $variations = $this->getProductVariations($id_product);

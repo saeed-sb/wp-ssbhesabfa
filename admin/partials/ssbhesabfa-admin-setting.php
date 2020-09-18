@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.0.8
+ * @version    1.0.9
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -514,7 +514,8 @@ class Ssbhesabfa_Setting {
                 update_option('ssbhesabfa_live_mode', 1);
 
                 //set the last log ID if is not set
-                $changes = $ssbhesabfa_api->settingGetChanges();
+                $lastChanges = get_option('ssbhesabfa_last_log_check_id');
+                $changes = $ssbhesabfa_api->settingGetChanges($lastChanges);
                 if ($changes->Success) {
                     if (get_option('ssbhesabfa_last_log_check_id') == 0) {
                         $lastChange = end($changes->Result);

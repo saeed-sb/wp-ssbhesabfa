@@ -148,7 +148,9 @@ class Ssbhesabfa_Webhook
         $json = json_decode($item->Tag);
         if (is_object($json)) {
             $id_product = $json->id_product;
-            $id_attribute = $json->id_attribute;
+            if (isset($json->id_attribute)) {
+                $id_attribute = $json->id_attribute;
+            }
         }
 
         //check if Tag not set in hesabfa
@@ -179,20 +181,18 @@ class Ssbhesabfa_Webhook
             if (get_option('ssbhesabfa_item_update_price')) {
                 if ($id_attribute != 0) {
                     $variation = new WC_Product_Variation($id_attribute);
-                    //ToDo check currency calculate
-                    $price = Ssbhesabfa::getPriceInHesabfaDefaultCurrency($variation->get_price);
+                    $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($variation->get_price);
                     if ($item->SellPrice != $price) {
                         $old_price = $variation->get_price;
-                        $variation->set_price($item->SellPrice);
+                        $variation->set_price(Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice));
 
                         Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
                     }
                 } else {
-                    //ToDo check currency calculate
-                    $price = Ssbhesabfa::getPriceInHesabfaDefaultCurrency($product->get_price);
+                    $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($product->get_price);
                     if ($item->SellPrice != $price) {
                         $old_price = $product->get_price;
-                        $product->set_price($item->SellPrice);
+                        $product->set_price(Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice));
 
                         Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
                     }
