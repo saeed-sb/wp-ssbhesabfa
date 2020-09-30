@@ -318,9 +318,15 @@ class Ssbhesabfa_Setting {
         $productExportResult = (isset($_GET['productExportResult'])) ? (bool)wc_clean($_GET['productExportResult']) : null;
         if (!is_null($productExportResult) && $productExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
-            echo '<div class="updated">';
-            echo '<p>' . sprintf(__('Export product completed. %s product added/updated.', 'ssbhesabfa'), $processed);
-            echo '</div>';
+            if ($processed === 0) {
+                echo '<div class="updated">';
+                echo '<p>' . __('No products were exported, All products were exported or there are no product', 'ssbhesabfa');
+                echo '</div>';
+            } else {
+                echo '<div class="updated">';
+                echo '<p>' . sprintf(__('Export products completed. %s products added/updated.', 'ssbhesabfa'), $processed);
+                echo '</div>';
+            }
         } elseif (!is_null($productExportResult) && $productExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export products fail. Please check the log file.', 'ssbhesabfa');
@@ -343,9 +349,15 @@ class Ssbhesabfa_Setting {
         $customerExportResult = (isset($_GET['customerExportResult'])) ? wc_clean($_GET['customerExportResult']) : null;
         if (!is_null($customerExportResult) && $customerExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
-            echo '<div class="updated">';
-            echo '<p>' . sprintf(__('Export customers completed. %s product added/updated.', 'ssbhesabfa'), $processed);
-            echo '</div>';
+            if ($processed === 0) {
+                echo '<div class="updated">';
+                echo '<p>' . __('No customers were exported, All customers were exported or there are no customer', 'ssbhesabfa');
+                echo '</div>';
+            } else {
+                echo '<div class="updated">';
+                echo '<p>' . sprintf(__('Export customers completed. %s customers added.', 'ssbhesabfa'), $processed);
+                echo '</div>';
+            }
         } elseif (!is_null($customerExportResult) && $customerExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export customers fail. Please check the log file.', 'ssbhesabfa');

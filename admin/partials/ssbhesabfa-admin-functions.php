@@ -109,6 +109,7 @@ class Ssbhesabfa_Admin_Functions
         if (!$code) {
             $code = null;
         }
+
         $product = new WC_Product($id_product);
         $categories = $product->get_category_ids();
 
@@ -560,7 +561,8 @@ class Ssbhesabfa_Admin_Functions
 
             // add product before insert invoice
             if ($itemCode == null) {
-                $itemCode = $this->setItem($product['product_id']);
+                $this->setItem($product['product_id']);
+                $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
             }
 
             $item = array (
@@ -756,7 +758,7 @@ class Ssbhesabfa_Admin_Functions
             $id_product = $item->ID;
 
             //do if product not exists in hesabfa
-            $id_obj = $this->getObjectId('product', $id_product);
+            $id_obj = $this->getObjectId('product', $id_product, 0);
             if (!$id_obj) {
                 $product = new WC_Product($id_product);
                 $categories = $product->get_category_ids();
@@ -771,7 +773,6 @@ class Ssbhesabfa_Admin_Functions
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 ));
-
             }
 
             $variations = $this->getProductVariations($id_product);
@@ -814,6 +815,8 @@ class Ssbhesabfa_Admin_Functions
             } else {
                 Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk item. Error Message: ".(string)$response->ErrorMessage.". Error Code: ".(string)$response->ErrorCode."."));
             }
+        } else {
+            return 0;
         }
         return false;
     }
@@ -828,7 +831,7 @@ class Ssbhesabfa_Admin_Functions
             $variations = $this->getProductVariations($item->ID);
             if (!$variations) {
                 //do if product exists in hesabfa
-                $id_obj = $this->getObjectId('product', $item->ID);
+                $id_obj = $this->getObjectId('product', $item->ID, 0);
                 if ($id_obj != false) {
                     $product = new WC_Product($item->ID);
                     $quantity = $product->get_stock_quantity();
@@ -941,6 +944,8 @@ class Ssbhesabfa_Admin_Functions
             } else {
                 Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
             }
+        } else {
+            return 0;
         }
 
         return false;

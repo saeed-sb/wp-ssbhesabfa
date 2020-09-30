@@ -373,7 +373,7 @@ class Ssbhesabfa_Admin {
     public function ssbhesabfa_hook_delete_product($id_product)
     {
         $func = new Ssbhesabfa_Admin_Functions();
-        $id_obj = $func->getObjectId('product', $id_product);
+        $id_obj = $func->getObjectId('product', $id_product, 0);
         global $wpdb;
         $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'product'");
 
