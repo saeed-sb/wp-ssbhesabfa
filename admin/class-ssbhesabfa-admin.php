@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.0.9
+ * @version    1.1.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -38,7 +38,6 @@ class Ssbhesabfa_Admin {
 	 * @param      string    $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->load_dependencies();
@@ -367,7 +366,7 @@ class Ssbhesabfa_Admin {
     public function ssbhesabfa_hook_new_product($id_product)
     {
         $function = new Ssbhesabfa_Admin_Functions();
-        $function->setItem($id_product);
+        $function->setItems(array($id_product));
     }
 
     public function ssbhesabfa_hook_delete_product($id_product)

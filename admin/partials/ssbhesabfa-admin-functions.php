@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.0.9
+ * @version    1.1.1
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -99,90 +99,113 @@ class Ssbhesabfa_Admin_Functions
     }
 
     //Items
-    public function setItem($id_product)
-    {
-        if (!isset($id_product)) {
-            return false;
-        }
+    public function setItems($id_product_array) {
+	    if ( ! isset( $id_product_array ) || $id_product_array[0] == null ) {
+		    return false;
+	    }
 
-        $code = $this->getItemCodeByProductId($id_product);
-        if (!$code) {
-            $code = null;
-        }
+	    if ( is_array( $id_product_array ) && empty( $id_product_array ) ) {
+		    return true;
+	    }
 
-        $product = new WC_Product($id_product);
-        $categories = $product->get_category_ids();
+	    $items = array();
+	    foreach ( $id_product_array as $id_product ) {
+		    $product    = new WC_Product( $id_product );
+		    $categories = $product->get_category_ids();
 
-        $item = array(
-            'Code' => $code,
-            'Name' => mb_substr($product->get_title(), 0, 99),
-            'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
-            'Barcode' => $product->get_sku(),
-            'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
-            'NodeFamily' => $this->getCategoryPath($categories[0]),
-            'ProductCode' => $id_product,
-        );
+		    $code = $this->getItemCodeByProductId( $id_product );
+		    if ( ! $code ) {
+			    $code = null;
+		    }
 
-        if (!get_option('ssbhesabfa_item_update_price')) {
-            $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency($product->get_price());
-        }
+		    $item = array(
+			    'Code'        => $code,
+			    'Name'        => mb_substr( $product->get_title(), 0, 99 ),
+			    'ItemType'    => $product->is_virtual() == 1 ? 1 : 0,
+			    'Barcode'     => $product->get_sku(),
+			    'Tag'         => json_encode( array( 'id_product' => $id_product, 'id_attribute' => 0 ) ),
+//			    'Active' => $product->active ? true : false,
+			    'NodeFamily'  => $this->getCategoryPath( $categories[0] ),
+			    'ProductCode' => $id_product,
+		    );
 
-        $this->saveItem($item, $id_product);
+		    if ( ! get_option( 'ssbhesabfa_item_update_price' ) ) {
+			    $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency( $product->get_price() );
+		    }
 
-        $variations = $this->getProductVariations($id_product);
-        if ($variations != false) {
-            foreach ($variations as $variation) {
-                $id_attribute = $variation->get_id();
-                $code = $this->getItemCodeByProductId($id_product, $id_attribute);
-                if (!$code) {
-                    $code = null;
-                }
-                $item = array(
-                    'Code' => $code,
-                    'Name' => mb_substr($variation->get_name(), 0, 99),
-                    'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
-                    'Barcode' => $variation->get_sku(),
-                    'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
-                    'NodeFamily' => $this->getCategoryPath($categories[0]),
-                    'ProductCode' => $id_product,
-                );
+		    $items[] = $item;
 
-                if (!get_option('ssbhesabfa_item_update_price')) {
-                    $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency($variation->get_price());
-                }
+		    $variations = $this->getProductVariations( $id_product );
+		    if ( $variations != false ) {
+			    foreach ( $variations as $variation ) {
+				    $id_attribute = $variation->get_id();
+				    $code         = $this->getItemCodeByProductId( $id_product, $id_attribute );
+				    if ( ! $code ) {
+					    $code = null;
+				    }
+				    $item = array(
+					    'Code'        => $code,
+					    'Name'        => mb_substr( $variation->get_name(), 0, 99 ),
+					    'ItemType'    => $variation->is_virtual() == 1 ? 1 : 0,
+					    'Barcode'     => $variation->get_sku(),
+					    'Tag'         => json_encode( array(
+						    'id_product'   => $id_product,
+						    'id_attribute' => $id_attribute
+					    ) ),
+//					    'Active' => $product->active ? true : false,
+					    'NodeFamily'  => $this->getCategoryPath( $categories[0] ),
+					    'ProductCode' => $id_product,
+				    );
 
-                $this->saveItem($item, $id_product, $id_attribute);
-            }
-        }
+				    if ( ! get_option( 'ssbhesabfa_item_update_price' ) ) {
+					    $item['SellPrice'] = $this->getPriceInHesabfaDefaultCurrency( $variation->get_price() );
+				    }
+
+				    $items[] = $item;
+			    }
+		    }
+	    }
+
+	    if (!$this->saveItems($items)) {
+	        return false;
+	    }
+
+	    return true;
     }
 
-    public function saveItem($item, $id_product, $id_attribute = 0) {
+    public function saveItems($items) {
         $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->itemSave($item);
+        $response = $hesabfa->itemBatchSave($items);
         if ($response->Success) {
-            global $wpdb;
-            if ($item['Code'] == null) {
-                $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                    'id_hesabfa' => (int)$response->Result->Code,
-                    'obj_type' => 'product',
-                    'id_ps' => $id_product,
-                    'id_ps_attribute' => $id_attribute,
-                ));
+	        global $wpdb;
 
-                Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item code: ".(string)$response->Result->Code.". Product ID: $id_product"));
-            } else {
-                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
-                    'id_hesabfa' => (int)$response->Result->Code,
-                    'obj_type' => 'product',
-                    'id_ps' => $id_product,
-                    'id_ps_attribute' => $id_attribute,
-                ), array('id' => $this->getObjectId('product', $id_product, $id_attribute)));
+	        foreach ($response->Result as $item) {
+		        $json = json_decode($item->Tag);
+		        $id_ssb_hesabfa = $this->getObjectId('product', (int)$json->id_product, (int)$json->id_attribute);
 
-                Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$response->Result->Code.". Product ID: $id_product"));
-            }
-            return $response->Result->Code;
+		        if ($id_ssb_hesabfa == null) {
+			        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+				        'id_hesabfa' => (int)$item->Code,
+				        'obj_type' => 'product',
+				        'id_ps' => (int)$json->id_product,
+				        'id_ps_attribute' => (int)$json->id_attribute,
+			        ));
+
+			        Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item code: ".(string)$item->Code.". Product ID: $json->id_product"));
+		        } else {
+			        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+				        'id_hesabfa' => (int)$item->Code,
+				        'obj_type' => 'product',
+				        'id_ps' => (int)$json->id_product,
+				        'id_ps_attribute' => (int)$json->id_attribute,
+			        ), array('id' => $this->getObjectId('product', $json->id_product, $json->id_attribute)));
+
+			        Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$item->Code.". Product ID: $json->id_product"));
+		        }
+	        }
+            return true;
         } else {
-            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update Hesabfa item. Error Code: ".(string)$response->ErrorCode.". Error Message: $response->ErrorMessage. Product ID: $id_product"));
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update Hesabfa items. Error Code: ".(string)$response->ErrorCode.". Error Message: $response->ErrorMessage."));
             return false;
         }
     }
@@ -276,7 +299,7 @@ class Ssbhesabfa_Admin_Functions
 
                 Ssbhesabfa_Admin_Functions::log(array("Contact successfully updated. Contact Code: ".(string)$response->Result[0]->Code.". Customer ID: $id_customer"));
             }
-            return true;
+            return $response->Result[0]->Code;
         } else {
             Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
             return false;
@@ -291,6 +314,7 @@ class Ssbhesabfa_Admin_Functions
 
         $order = new WC_Order($id_order);
 
+        //ToDo: check this functions
 //        $code = $this->getContactCodeByEmail($order->get_billing_email());
 //        if (!$code) {
             $code = null;
@@ -345,7 +369,7 @@ class Ssbhesabfa_Admin_Functions
 //            }
             return (int)$response->Result[0]->Code;
         } else {
-            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: Guest Customer"));
             return false;
         }
     }
@@ -532,16 +556,19 @@ class Ssbhesabfa_Admin_Functions
         if ($id_customer !== 0) {
             $contactCode = $this->getObjectId('customer', $id_customer);
 
-            if (!$contactCode) {
+            if ($contactCode == 0) {
                 // set customer if not exists
-                $this->setContact($id_customer);
-            } elseif (get_option('ssbhesabfa_contact_address_status') == 1) {
-                // update customer name only
-                $this->setContactAddress($id_customer, 'first');
-            } elseif (get_option('ssbhesabfa_contact_address_status') == 2) {
-                $this->setContactAddress($id_customer, 'billing');
-            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-                $this->setContactAddress($id_customer, 'shipping');
+	            $contactCode = $this->setContact($id_customer);
+	            if (!$contactCode) {
+		            // return false if cannot set customer
+		            return false;
+	            }
+
+	           if (get_option('ssbhesabfa_contact_address_status') == 2) {
+		            $this->setContactAddress($id_customer, 'billing');
+	            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
+		            $this->setContactAddress($id_customer, 'shipping');
+	            }
             }
         } else {
             // set guest customer
@@ -552,18 +579,23 @@ class Ssbhesabfa_Admin_Functions
             }
         }
 
-        $items = array();
+	    // add product before insert invoice
+	    $items = array();
+	    $products = $order->get_items();
+	    foreach ($products as $product) {
+		    $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
+		    if ($itemCode == null) {
+			    $items[] = $product['product_id'];
+		    }
+	    }
+	    if (!$this->setItems($items)) {
+		    return false;
+	    }
+
+	    /////////////////
         $i = 0;
-
-        $products = $order->get_items();
-        foreach ($products as $key => $product) {
+	    foreach ($products as $key => $product) {
             $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
-
-            // add product before insert invoice
-            if ($itemCode == null) {
-                $this->setItem($product['product_id']);
-                $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
-            }
 
             $item = array (
                 'RowNumber' => $i,
@@ -701,9 +733,10 @@ class Ssbhesabfa_Admin_Functions
         }
 
         $hesabfa = new Ssbhesabfa_Api();
-        $number = $this->getObjectId('order', (int)$id_order);
-        if (!$number)
-            $number = null;
+        $number = $this->getInvoiceCodeByOrderId($id_order);
+        if (!$number) {
+	        return false;
+        }
 
         $order = new WC_Order($id_order);
 
@@ -728,11 +761,16 @@ class Ssbhesabfa_Admin_Functions
 
             if ($response->Success) {
                 Ssbhesabfa_Admin_Functions::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
+
+                return true;
             } else {
                 Ssbhesabfa_Admin_Functions::log(array("Cannot add Hesabfa Invoice payment. Order ID: $id_order. Error Code: ".(string)$response->ErrorCode.". Error Message: ".(string)$response->ErrorMessage."."));
+
+                return false;
             }
         } else {
             Ssbhesabfa_Admin_Functions::log(array("Cannot add Hesabfa Invoice payment - Bank Code not define. Order ID: $id_order"));
+            return false;
         }
     }
 
@@ -745,6 +783,22 @@ class Ssbhesabfa_Admin_Functions
         else
             return false;
     }
+
+	public function getInvoiceCodeByOrderId($id_order)
+	{
+		if (!isset($id_order)) {
+			return false;
+		}
+
+		global $wpdb;
+		$row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
+
+		if (is_object($row)) {
+			return $row->id_hesabfa;
+		} else {
+			return false;
+		}
+	}
 
     //Export
     public function exportProducts()
@@ -919,7 +973,8 @@ class Ssbhesabfa_Admin_Functions
                     'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
                     'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                     'Tag' => json_encode(array('id_customer' => $id_customer)),
-                    'Note' => 'Customer ID in OnlineStore: ' . $id_customer,                ));
+                    'Note' => 'Customer ID in OnlineStore: ' . $id_customer,
+                ));
             }
         }
 
