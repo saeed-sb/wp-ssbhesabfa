@@ -307,7 +307,6 @@ class Ssbhesabfa_Admin {
     {
         $function = new Ssbhesabfa_Admin_Functions();
         $function->setContact($id_customer);
-        $function->setContactAddress($id_customer);
     }
 
     public function ssbhesabfa_hook_delete_user($id_customer)

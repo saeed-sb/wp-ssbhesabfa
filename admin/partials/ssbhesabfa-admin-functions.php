@@ -241,13 +241,13 @@ class Ssbhesabfa_Admin_Functions
         }
     }
 
-    public function setContact($id_customer)
+    public function setContact($id_customer, $type = 'first')
     {
         if (!isset($id_customer)) {
             return false;
         }
 
-        $code = $this->getObjectId('customer', $id_customer);
+        $code = $this->getContactCodeByCustomerId($id_customer);
         if (!$code) {
             $code = null;
         }
@@ -257,25 +257,68 @@ class Ssbhesabfa_Admin_Functions
         if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
             $name = __('Not Define', 'ssbhesabfa');
         }
-        $data = array (
-            array(
-                'Code' => $code,
-                'Name' => $name,
-                'FirstName' => $customer->get_first_name(),
-                'LastName' => $customer->get_last_name(),
-                'ContactType' => 1,
-                'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                'Address' => $customer->get_billing_address(),
-                'City' => $customer->get_billing_city(),
-                'State' => $customer->get_billing_state(),
-                'Country' => $customer->get_billing_country(),
-                'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
-                'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
-                'Tag' => json_encode(array('id_customer' => $id_customer)),
-                'Note' => 'Customer ID in OnlineStore: ' . $id_customer,
-            )
-        );
+
+        switch ($type) {
+            case 'first':
+                $data = array (
+                    array(
+                        'Code' => $code,
+                        'Name' => $name,
+                        'FirstName' => $customer->get_first_name(),
+                        'LastName' => $customer->get_last_name(),
+                        'ContactType' => 1,
+                        'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
+                        'Address' => $customer->get_billing_address(),
+                        'City' => $customer->get_billing_city(),
+                        'State' => $customer->get_billing_state(),
+                        'Country' => $customer->get_billing_country(),
+                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
+                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
+                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Tag' => json_encode(array('id_customer' => $id_customer)),
+                        'Note' => 'Customer ID in OnlineStore: ' . $id_customer,
+                    )
+                );
+                break;
+            case 'billing':
+                $data = array (
+                    array(
+                        'Code' => $code,
+                        'Name' => $name,
+                        'FirstName' => $customer->get_first_name(),
+                        'LastName' => $customer->get_last_name(),
+                        'ContactType' => 1,
+                        'Address' => $customer->get_billing_address(),
+                        'City' => $customer->get_billing_city(),
+                        'State' => $customer->get_billing_state(),
+                        'Country' => $customer->get_billing_country(),
+                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
+                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
+                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Tag' => json_encode(array('id_customer' => $id_customer)),
+                    )
+                );
+                break;
+            case 'shipping':
+                $data = array (
+                    array(
+                        'Code' => $code,
+                        'Name' => $name,
+                        'FirstName' => $customer->get_first_name(),
+                        'LastName' => $customer->get_last_name(),
+                        'ContactType' => 1,
+                        'Address' => $customer->get_shipping_address(),
+                        'City' => $customer->get_shipping_city(),
+                        'State' => $customer->get_shipping_state(),
+                        'Country' => $customer->get_shipping_country(),
+                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()),
+                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_shipping_phone()),
+                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Tag' => json_encode(array('id_customer' => $id_customer)),
+                    )
+                );
+                break;
+        }
 
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->contactBatchSave($data);
@@ -370,85 +413,6 @@ class Ssbhesabfa_Admin_Functions
             return (int)$response->Result[0]->Code;
         } else {
             Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: Guest Customer"));
-            return false;
-        }
-    }
-
-    public function setContactAddress($id_customer, $type = 'billing')
-    {
-        if (!isset($id_customer)) {
-            return false;
-        }
-        $customer = new WC_Customer($id_customer);
-
-        $code = $this->getObjectId('customer', $id_customer);
-        if (!$code) {
-            $code = null;
-        }
-
-        $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
-        if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
-            $name = __('Guest Customer', 'ssbhesabfa');
-        }
-
-        if ($type === 'first') {
-            $data = array (
-                array(
-                    'Code' => $code,
-                    'Name' => $name,
-                    'FirstName' => $customer->get_first_name(),
-                    'LastName' => $customer->get_last_name(),
-                    'ContactType' => 1,
-                    'Tag' => json_encode(array('id_customer' => $id_customer)),
-                )
-            );
-        } elseif ($type === 'billing') {
-            $data = array (
-                array(
-                    'Code' => $code,
-                    'Name' => $name,
-                    'FirstName' => $customer->get_first_name(),
-                    'LastName' => $customer->get_last_name(),
-                    'ContactType' => 1,
-                    'Address' => $customer->get_billing_address(),
-                    'City' => $customer->get_billing_city(),
-                    'State' => $customer->get_billing_state(),
-                    'Country' => $customer->get_billing_country(),
-                    'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
-                    'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                    'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
-                    'Tag' => json_encode(array('id_customer' => $id_customer)),
-
-                )
-            );
-        } elseif ($type === 'shipping') {
-            $data = array (
-                array(
-                    'Code' => $code,
-                    'Name' => $name,
-                    'FirstName' => $customer->get_first_name(),
-                    'LastName' => $customer->get_last_name(),
-                    'ContactType' => 1,
-                    'Address' => $customer->get_shipping_address(),
-                    'City' => $customer->get_shipping_city(),
-                    'State' => $customer->get_shipping_state(),
-                    'Country' => $customer->get_shipping_country(),
-                    'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()),
-                    'Phone' => preg_replace("/[^0-9]/", "", $customer->get_shipping_phone()),
-                    'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
-                    'Tag' => json_encode(array('id_customer' => $id_customer)),
-                )
-            );
-        }
-
-        $hesabfa = new Ssbhesabfa_Api();
-        $response = $hesabfa->contactBatchSave($data);
-
-        if ($response->Success) {
-            Ssbhesabfa_Admin_Functions::log(array("Contact address successfully updated. Contact Code: ".(string)$response->Result[0]->Code.". Customer ID: $id_customer"));
-            return true;
-        } else {
-            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update contact address. Error Code: ".(string)$response->ErrorCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
             return false;
         }
     }
@@ -554,21 +518,23 @@ class Ssbhesabfa_Admin_Functions
         $id_customer = $order->get_customer_id();
 
         if ($id_customer !== 0) {
+            //set registered customer
             $contactCode = $this->getObjectId('customer', $id_customer);
 
-            if ($contactCode == 0) {
-                // set customer if not exists
-	            $contactCode = $this->setContact($id_customer);
-	            if (!$contactCode) {
-		            // return false if cannot set customer
-		            return false;
-	            }
+            // set customer if not exists
+            if ($contactCode === false) {
+                $contactCode = $this->setContact($id_customer, 'first');
 
-	           if (get_option('ssbhesabfa_contact_address_status') == 2) {
-		            $this->setContactAddress($id_customer, 'billing');
-	            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
-		            $this->setContactAddress($id_customer, 'shipping');
-	            }
+                if (!$contactCode) {
+                    // return false if cannot set customer
+                    return false;
+                }
+            }
+
+            if (get_option('ssbhesabfa_contact_address_status') == 2) {
+                $this->setContact($id_customer, 'billing');
+            } elseif (get_option('ssbhesabfa_contact_address_status') == 3) {
+                $this->setContact($id_customer, 'shipping');
             }
         } else {
             // set guest customer
@@ -588,11 +554,12 @@ class Ssbhesabfa_Admin_Functions
 			    $items[] = $product['product_id'];
 		    }
 	    }
-	    if (!$this->setItems($items)) {
-		    return false;
-	    }
+        if (!empty($items)) {
+            if (!$this->setItems($items)) {
+                return false;
+            }
+        }
 
-	    /////////////////
         $i = 0;
 	    foreach ($products as $key => $product) {
             $itemCode = $this->getItemCodeByProductId($product['product_id'], $product['variation_id']);
