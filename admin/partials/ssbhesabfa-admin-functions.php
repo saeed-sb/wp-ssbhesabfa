@@ -257,7 +257,6 @@ class Ssbhesabfa_Admin_Functions
         if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
             $name = __('Not Define', 'ssbhesabfa');
         }
-
         switch ($type) {
             case 'first':
                 $data = array (
@@ -272,7 +271,7 @@ class Ssbhesabfa_Admin_Functions
                         'City' => $customer->get_billing_city(),
                         'State' => $customer->get_billing_state(),
                         'Country' => $customer->get_billing_country(),
-                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
+                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
                         'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
                         'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
@@ -292,7 +291,7 @@ class Ssbhesabfa_Admin_Functions
                         'City' => $customer->get_billing_city(),
                         'State' => $customer->get_billing_state(),
                         'Country' => $customer->get_billing_country(),
-                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
+                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
                         'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
                         'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
@@ -311,7 +310,7 @@ class Ssbhesabfa_Admin_Functions
                         'City' => $customer->get_shipping_city(),
                         'State' => $customer->get_shipping_state(),
                         'Country' => $customer->get_shipping_country(),
-                        'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()),
+                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()), 0, 9),
                         'Phone' => preg_replace("/[^0-9]/", "", $customer->get_shipping_phone()),
                         'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
@@ -379,7 +378,7 @@ class Ssbhesabfa_Admin_Functions
                 'City' => $order->get_billing_city(),
                 'State' => $order->get_billing_state(),
                 'Country' => $order->get_billing_country(),
-                'PostalCode' => preg_replace("/[^0-9]/", '', $order->get_billing_postcode()),
+                'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $order->get_billing_postcode()), 0, 9),
                 'Phone' => preg_replace("/[^0-9]/", "", $order->get_billing_phone()),
                 'Email' => $this->validEmail($order->get_billing_email()) ? $order->get_billing_email() : null,
                 'Tag' => json_encode(array('id_customer' => 0)),
@@ -912,7 +911,7 @@ class Ssbhesabfa_Admin_Functions
 
     public function exportCustomers()
     {
-        $customers = get_users( 'orderby=id&role=subscriber' );
+        $customers = get_users(array('fields' => array('ID')));
         $data = array();
         foreach ($customers as $item) {
             //do if customer not exists in hesabfa
@@ -936,7 +935,7 @@ class Ssbhesabfa_Admin_Functions
                     'City' => $customer->get_billing_city(),
                     'State' => $customer->get_billing_state(),
                     'Country' => $customer->get_billing_country(),
-                    'PostalCode' => preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()),
+                    'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
                     'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
                     'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                     'Tag' => json_encode(array('id_customer' => $id_customer)),
@@ -1016,10 +1015,11 @@ class Ssbhesabfa_Admin_Functions
     {
         $hesabfa = new Ssbhesabfa_Api();
         $response = $hesabfa->itemGetItems(array('Take' => 99999999));
+
         if ($response->Success) {
             $products = $response->Result->List;
-            require_once plugin_dir_path(dirname(__FILE__)) . '../includes/class-ssbhesabfa-webhook.php';
 
+            require_once plugin_dir_path(dirname(__FILE__)) . '../includes/class-ssbhesabfa-webhook.php';
             $webhook = new Ssbhesabfa_Webhook();
             foreach ($products as $product) {
                 $webhook->setItemChanges($product);

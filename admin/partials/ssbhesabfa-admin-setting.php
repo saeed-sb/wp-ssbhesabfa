@@ -422,7 +422,7 @@ class Ssbhesabfa_Setting {
         $changesSyncResult = (isset($_GET['changesSyncResult'])) ? (bool)wc_clean($_GET['changesSyncResult']) : false;
         if ($changesSyncResult) {
             echo '<div class="updated">';
-            echo '<p>' . __('Sync completed; All hesabfa changes synced successfully.', 'ssbhesabfa');
+            echo '<p>' . __('Sync completed, All hesabfa changes synced successfully.', 'ssbhesabfa');
             echo '</div>';
         }
 
@@ -430,11 +430,11 @@ class Ssbhesabfa_Setting {
         $productSyncResult = (isset($_GET['productSyncResult'])) ? (bool)wc_clean($_GET['productSyncResult']) : null;
         if (!is_null($productSyncResult) && $productSyncResult) {
             echo '<div class="updated">';
-            echo '<p>' . __('Sync completed; All products added/updated.', 'ssbhesabfa');
+            echo '<p>' . __('Sync completed, All products added/updated.', 'ssbhesabfa');
             echo '</div>';
         } elseif (!is_null($productSyncResult) && !$productSyncResult) {
             echo '<div class="updated">';
-            echo '<p>' . __('Sync completed; No product added/updated.', 'ssbhesabfa');
+            echo '<p>' . __('Sync completed, No product added/updated.', 'ssbhesabfa');
             echo '</div>';
         }
 

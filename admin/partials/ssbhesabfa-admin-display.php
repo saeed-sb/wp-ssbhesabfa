@@ -36,11 +36,11 @@ class Ssbhesabfa_Admin_Display {
         if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
             $setting_tabs = apply_filters('ssbhesabfa_setting_tab', array(
                 'home' => __('Home', 'ssbhesabfa'),
+                'api' => __('API', 'ssbhesabfa'),
                 'catalog' => __('Catalog', 'ssbhesabfa'),
                 'customers' => __('Customers', 'ssbhesabfa'),
                 'invoice' => __('Invoice', 'ssbhesabfa'),
                 'payment' => __('Payment Methods', 'ssbhesabfa'),
-                'api' => __('API', 'ssbhesabfa'),
                 'export' => __('Export', 'ssbhesabfa'),
                 'sync' => __('Sync', 'ssbhesabfa')
             ));

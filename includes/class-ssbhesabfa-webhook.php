@@ -25,10 +25,12 @@ class Ssbhesabfa_Webhook
 			            case 'Invoice':
 				            $this->invoicesObjectId[] = $item->ObjectId;
 				            foreach (explode(',', $item->Extra) as $invoiceItem) {
-					            $this->invoiceItemsCode[] = $invoiceItem;
+				                if ($invoiceItem != ''){
+                                    $this->invoiceItemsCode[] = $invoiceItem;
+                                }
 				            }
 
-				            break;
+                            break;
 			            case 'Product':
 				            //if Action was deleted
 				            if ($item->Action == 53) {
@@ -39,7 +41,8 @@ class Ssbhesabfa_Webhook
 //                            $hesabfa->delete();
 				            }
 				            $this->itemsObjectId[] = $item->ObjectId;
-				            break;
+
+                            break;
 			            case 'Contact':
 				            //if Action was deleted
 				            if ($item->Action == 33) {
@@ -51,12 +54,19 @@ class Ssbhesabfa_Webhook
 				            }
 
 				            $this->contactsObjectId[] = $item->ObjectId;
-				            break;
+                            break;
 		            }
 	            }
             }
 
-	        $this->setChanges();
+            //remove duplicate values
+            $this->invoiceItemsCode = array_unique($this->invoiceItemsCode);
+            $this->contactsObjectId = array_unique($this->contactsObjectId);
+            $this->itemsObjectId = array_unique($this->itemsObjectId);
+            $this->invoicesObjectId = array_unique($this->invoicesObjectId);
+
+            $this->setChanges();
+
 	        //set LastChange ID
 	        $lastChange = end($changes->Result);
 	        if (is_object($lastChange)) {
@@ -73,9 +83,9 @@ class Ssbhesabfa_Webhook
 
 	public function setChanges() {
 		//Invoices
-		if (!empty($this->invoicesObjectId)) {
-			$invoices = $this->getObjectsByIdList($this->invoicesObjectId, 'invoice');
-			if ($invoices != false) {
+        if (!empty($this->invoicesObjectId)) {
+            $invoices = $this->getObjectsByIdList($this->invoicesObjectId, 'invoice');
+            if ($invoices != false) {
 				foreach ($invoices as $invoice) {
 					$this->setInvoiceChanges($invoice);
 				}
@@ -83,8 +93,8 @@ class Ssbhesabfa_Webhook
 		}
 
 		//Contacts
-		if (!empty($this->contactsObjectId)) {
-			$contacts = $this->getObjectsByIdList($this->contactsObjectId, 'contact');
+        if (!empty($this->contactsObjectId)) {
+			$contacts = $this->getObjectsByIdList(array_unique($this->contactsObjectId), 'contact');
 			if ($contacts != false) {
 				foreach ($contacts as $contact) {
 					$this->setContactChanges($contact);
@@ -94,7 +104,8 @@ class Ssbhesabfa_Webhook
 
 		//Items
 		$items = array();
-		if (!empty($this->itemsObjectId)) {
+
+        if (!empty($this->itemsObjectId)) {
 			$objects = $this->getObjectsByIdList($this->itemsObjectId, 'item');
 			if ($objects != false) {
 				foreach ($objects as $object) {
@@ -112,7 +123,7 @@ class Ssbhesabfa_Webhook
 			}
 		}
 
-		if (!empty($items)) {
+        if (!empty($items)) {
 			foreach ($items as $item) {
 				$this->setItemChanges($item);
 			}
@@ -236,7 +247,7 @@ class Ssbhesabfa_Webhook
             if (is_object($row) && $row->id_hesabfa != $item->Code) {
                 $id_hesabfa_old = $row->id_hesabfa;
                 //update all variation
-                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$item->Code), array('id_ps' => $id_product, 'type' => 'product'));
+                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array('id_hesabfa' => (int)$item->Code), array('id_ps' => $id_product, 'obj_type' => 'product'));
 
                 Ssbhesabfa_Admin_Functions::log(array("Item Code changed. Old ID: $id_hesabfa_old. New ID: $item->Code"));
             }
@@ -248,15 +259,19 @@ class Ssbhesabfa_Webhook
                     $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($variation->get_price);
                     if ($item->SellPrice != $price) {
                         $old_price = $variation->get_price;
-                        $variation->set_price(Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice));
+                        $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+                        update_post_meta($id_attribute, '_price', $new_price);
+                        update_post_meta($id_attribute, '_regular_price', $new_price);
 
-                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product-$id_attribute Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
                     }
                 } else {
                     $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($product->get_price);
                     if ($item->SellPrice != $price) {
                         $old_price = $product->get_price;
-                        $product->set_price(Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice));
+                        $new_price = Ssbhesabfa_Admin_Functions::getPriceInWooCommerceDefaultCurrency($item->SellPrice);
+                        update_post_meta($id_product, '_price', $new_price);
+                        update_post_meta($id_product, '_regular_price', $new_price);
 
                         Ssbhesabfa_Admin_Functions::log(array("product ID $id_product Price changed. Old Price: $old_price. New Price: $item->SellPrice"));
                     }
@@ -269,14 +284,22 @@ class Ssbhesabfa_Webhook
                     $variation = new WC_Product_Variation($id_attribute);
                     if ($item->Stock != $variation->get_stock_quantity()) {
                         $old_quantity = $variation->get_stock_quantity();
-                        $variation->set_stock_quantity($item->Stock);
+                        $new_quantity = $item->Stock;
 
-                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
+                        $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+                        update_post_meta($id_attribute, '_stock', $new_quantity);
+                        wc_update_product_stock_status($id_attribute, $new_stock_status);
+
+                        Ssbhesabfa_Admin_Functions::log(array("product ID $id_product-$id_attribute quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
                     }
                 } else {
                     if ($item->Stock != $product->get_stock_quantity()) {
                         $old_quantity = $product->get_stock_quantity();
-                        $product->set_stock_quantity($item->Stock);
+                        $new_quantity = $item->Stock;
+
+                        $new_stock_status = ($new_quantity > 0) ? "instock" : "outofstock";
+                        update_post_meta($id_product, '_stock', $new_quantity);
+                        wc_update_product_stock_status($id_product, $new_stock_status);
 
                         Ssbhesabfa_Admin_Functions::log(array("product ID $id_product quantity changed. Old qty: $old_quantity. New qty: $item->Stock"));
                     }
@@ -284,7 +307,7 @@ class Ssbhesabfa_Webhook
             }
         }
     }
-
+    
 	public function getObjectsByIdList($idList, $type) {
 		$hesabfaApi = new Ssbhesabfa_Api();
 		switch ($type) {

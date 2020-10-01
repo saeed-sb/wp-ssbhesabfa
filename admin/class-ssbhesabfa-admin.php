@@ -201,7 +201,6 @@ class Ssbhesabfa_Admin {
     public function adminExportCustomersCallback() {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
-
             $update_count = $func->exportCustomers();
             if ($update_count === false) {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&customerExportResult=false');

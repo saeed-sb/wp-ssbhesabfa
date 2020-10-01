@@ -90,6 +90,9 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * merge some functions
 * add activation status for products and customers
 * fix some bugs
+* fix postal code character limit
+* change API tab position
+
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.

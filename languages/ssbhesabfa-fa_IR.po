@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-09-10 01:14+0430\n"
-"PO-Revision-Date: 2020-09-10 01:15+0430\n"
+"POT-Creation-Date: 2020-10-01 18:40+0330\n"
+"PO-Revision-Date: 2020-10-01 18:41+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -15,21 +15,21 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
-"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: admin/class-ssbhesabfa-admin.php:138
+#: admin/class-ssbhesabfa-admin.php:137
 #, php-format
 msgid "Hesabfa Plugin requires the %s to work!"
 msgstr "افزونه حسابفا نیازمند %s است!"
 
-#: admin/class-ssbhesabfa-admin.php:138
+#: admin/class-ssbhesabfa-admin.php:137
 msgid "WooCommerce"
 msgstr "ووکامرس"
 
-#: admin/class-ssbhesabfa-admin.php:147
+#: admin/class-ssbhesabfa-admin.php:146
 msgid ""
 "Hesabfa Plugin need to connect to Hesabfa Accounting, Please check the API "
 "credential!"
@@ -37,13 +37,13 @@ msgstr ""
 "افزونه حسابفا نیازمن اتصال به نرم‌افزار حسابداری حسابفا است، لطفا اطلاعات "
 "دسترسی به API حسابفا را بررسی کنید!"
 
-#: admin/class-ssbhesabfa-admin.php:156
+#: admin/class-ssbhesabfa-admin.php:155
 msgid ""
 "Hesabfa Plugin cannot works! because WooCommerce currency in not match with "
 "Hesabfa."
 msgstr ""
-"افزونه حسابفا نمی‌تواند به درستی عمل کند! واحد پول پیش‌فرض ووکامرس با واحد "
-"پول پیش‌فرض حسابفا همخوانی ندارد."
+"افزونه حسابفا نمی‌تواند به درستی عمل کند! واحد پول پیش‌فرض ووکامرس با واحد پول "
+"پیش‌فرض حسابفا همخوانی ندارد."
 
 #: admin/partials/ssbhesabfa-admin-display.php:28
 msgid "Hesabfa Options"
@@ -58,24 +58,24 @@ msgid "Home"
 msgstr "خانه"
 
 #: admin/partials/ssbhesabfa-admin-display.php:39
+msgid "API"
+msgstr "‏API"
+
+#: admin/partials/ssbhesabfa-admin-display.php:40
 msgid "Catalog"
 msgstr "محصولات"
 
-#: admin/partials/ssbhesabfa-admin-display.php:40
+#: admin/partials/ssbhesabfa-admin-display.php:41
 msgid "Customers"
 msgstr "مشتریان"
 
-#: admin/partials/ssbhesabfa-admin-display.php:41
+#: admin/partials/ssbhesabfa-admin-display.php:42
 msgid "Invoice"
 msgstr "فاکتور"
 
-#: admin/partials/ssbhesabfa-admin-display.php:42
+#: admin/partials/ssbhesabfa-admin-display.php:43
 msgid "Payment Methods"
 msgstr "روش‌های پرداخت"
-
-#: admin/partials/ssbhesabfa-admin-display.php:43
-msgid "API"
-msgstr "‏API"
 
 #: admin/partials/ssbhesabfa-admin-display.php:44
 msgid "Export"
@@ -93,17 +93,16 @@ msgstr ""
 "افزونه حسابفا جهت راه‌اندازی نیاز به ووکامرس دارد! لطفا ووکامرس را نصب/فعال "
 "کنید و مجدد سعی کنید."
 
-#: admin/partials/ssbhesabfa-admin-functions.php:226
-#: admin/partials/ssbhesabfa-admin-functions.php:877
+#: admin/partials/ssbhesabfa-admin-functions.php:258
+#: admin/partials/ssbhesabfa-admin-functions.php:925
 msgid "Not Define"
 msgstr "وارد نشده"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:292
-#: admin/partials/ssbhesabfa-admin-functions.php:358
+#: admin/partials/ssbhesabfa-admin-functions.php:367
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:310
+#: admin/partials/ssbhesabfa-admin-functions.php:385
 msgid "Customer registered as a GuestCustomer."
 msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 
@@ -115,32 +114,32 @@ msgstr "نرم‌افزار حسابداری ابری حسابفا"
 #: admin/partials/ssbhesabfa-admin-setting.php:45
 msgid ""
 "This module helps connect your (online) store to Hesabfa online accounting "
-"software. By using this module, saving products, contacts, and orders in "
-"your store will also save them automatically in your Hesabfa account. "
-"Besides that, just after a client pays a bill, the receipt document will be "
-"stored in Hesabfa as well. Of course, you have to register your account in "
-"Hesabfa first. To do so, visit Hesabfa at the link here www.hesabfa.com and "
-"sign up for free. After you signed up and entered your account, choose your "
-"business, then in the settings menu/API, you can find the API keys for the "
-"business and import them to the plugin’s settings. Now your module is ready "
-"to use."
+"software. By using this module, saving products, contacts, and orders in your "
+"store will also save them automatically in your Hesabfa account. Besides that, "
+"just after a client pays a bill, the receipt document will be stored in "
+"Hesabfa as well. Of course, you have to register your account in Hesabfa "
+"first. To do so, visit Hesabfa at the link here www.hesabfa.com and sign up "
+"for free. After you signed up and entered your account, choose your business, "
+"then in the settings menu/API, you can find the API keys for the business and "
+"import them to the plugin’s settings. Now your module is ready to use."
 msgstr ""
-"این ماژول فروشگاه شما را به نرم افزار حسابداری آنلاین حسابفا متصل می کند. "
-"به وسیله ی این ماژول کالاها، مشتریان و سفارشات شما به محض ثبت در سیستم "
-"فروشگاه، در حسابفا نیز بصورت خودکار ثبت و ذخیره می شوند. همچنین با پرداخت "
-"مشتری، سند دریافت وجه از مشتری نیز در حسابفا ثبت می شود. بدیهی است برای "
-"استفاده از این افزونه باید ابتدا یک حساب کاربری در حسابفا داشته باشید. برای "
-"این کار می توانید به وب سایت حسابفا به آدرس www.hesabfa.com سر بزنید و به "
-"رایگان ثبت نام کنید. پس از ثبت نام در حسابفا و ورود به حساب خود، و سپس ورود "
-"به یک کسب و کار، در قسمت تنظیمات / API می توانید کلید API مربوط به کسب و "
-"کار خود را دریافت و در قسمت تنظیمات این ماژول وارد نمایید. پس از آن ماژول "
-"شما آماده استفاده است."
+"این ماژول فروشگاه شما را به نرم افزار حسابداری آنلاین حسابفا متصل می کند. به "
+"وسیله ی این ماژول کالاها، مشتریان و سفارشات شما به محض ثبت در سیستم فروشگاه، "
+"در حسابفا نیز بصورت خودکار ثبت و ذخیره می شوند. همچنین با پرداخت مشتری، سند "
+"دریافت وجه از مشتری نیز در حسابفا ثبت می شود. بدیهی است برای استفاده از این "
+"افزونه باید ابتدا یک حساب کاربری در حسابفا داشته باشید. برای این کار می توانید "
+"به وب سایت حسابفا به آدرس www.hesabfa.com سر بزنید و به رایگان ثبت نام کنید. "
+"پس از ثبت نام در حسابفا و ورود به حساب خود، و سپس ورود به یک کسب و کار، در "
+"قسمت تنظیمات / API می توانید کلید API مربوط به کسب و کار خود را دریافت و در "
+"قسمت تنظیمات این ماژول وارد نمایید. پس از آن ماژول شما آماده استفاده است."
 
 #: admin/partials/ssbhesabfa-admin-setting.php:46
 msgid ""
 "For more information and a full guide to how to use Hesabfa and WooCommerce "
 "Plugin, visit Hesabfa’s website and go to the “Accounting School” menu."
 msgstr ""
+"برای کسب اطلاعات بیشتر و راهنمای استفاده از حسابفا و افزونه ووکامرس به وب سایت "
+"حسابفا، قسمت مدرسه حسابداری مراجعه کنید."
 
 #: admin/partials/ssbhesabfa-admin-setting.php:53
 msgid "Catalog Settings"
@@ -298,158 +297,170 @@ msgstr "کلید API"
 msgid "Find API key in Setting->Financial Settings->API Menu"
 msgstr "کلید API را در حسابفا از منوی تنظیمات->تنظیمات مالی->API پیدا کنید"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:322
-#, php-format
-msgid "Export product completed. %s product added/updated."
-msgstr "استخراج پایان یافت. %s محصول به‌روزرسانی/افزوده شد."
+#: admin/partials/ssbhesabfa-admin-setting.php:323
+msgid ""
+"No products were exported, All products were exported or there are no product"
+msgstr ""
+"هیچ محصولی استخراج نشد، تمامی محصولات قبلا استخراج شده‌اند یا محصولی وجود ندارد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:326
+#: admin/partials/ssbhesabfa-admin-setting.php:327
+#, php-format
+msgid "Export products completed. %s products added/updated."
+msgstr "استخراج محصولات به اتمام رسید. ‪‬%s محصول استخراج شد."
+
+#: admin/partials/ssbhesabfa-admin-setting.php:332
 msgid "Export products fail. Please check the log file."
 msgstr "خروجی محصولات با خطا مواجه شد. لطفا لاگ را بررسی کنید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:334
+#: admin/partials/ssbhesabfa-admin-setting.php:340
 msgid "Export product opening quantity completed."
 msgstr "استخراج موجودی اول دوره با موفقیت به پایان رسید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:338
+#: admin/partials/ssbhesabfa-admin-setting.php:344
 msgid "Export product opening quantity fail. Please check the log file."
 msgstr "استخراج موجودی اول دوره با خطا مواجه شد. لطفا لاگ را بررسی کنید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:347
-#, php-format
-msgid "Export customers completed. %s product added/updated."
-msgstr "استخراج مشتریان پایان یافت. %s مشتری به‌روزرسانی/افزوده شد."
+#: admin/partials/ssbhesabfa-admin-setting.php:354
+msgid ""
+"No customers were exported, All customers were exported or there are no "
+"customer"
+msgstr ""
+"هیچ مشتری استخراج نشد، تمامی مشتریان قبلا استخراج شده‌اند یا مشتری وجود ندارد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:351
+#: admin/partials/ssbhesabfa-admin-setting.php:358
+#, php-format
+msgid "Export customers completed. %s customers added."
+msgstr "استخراج مشتریان به اتمام رسید. %s مشتری استخراج شد."
+
+#: admin/partials/ssbhesabfa-admin-setting.php:363
 msgid "Export customers fail. Please check the log file."
 msgstr "استخراج مشتریان با خطا مواجه شد. لطفا لاگ را بررسی کنید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:357
+#: admin/partials/ssbhesabfa-admin-setting.php:369
 msgid "Export can take several minutes."
 msgstr "استخراج ممکن است چند دقیقه زمان ببرد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:368
+#: admin/partials/ssbhesabfa-admin-setting.php:380
 msgid "Export Products"
 msgstr "خروجی محصولات"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:371
+#: admin/partials/ssbhesabfa-admin-setting.php:383
 msgid "Export and add all online store products to Hesabfa"
 msgstr "افزودن تمامی محصولات فروشگاه آنلاین در حسابفا"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:383
+#: admin/partials/ssbhesabfa-admin-setting.php:395
 msgid "Export Products opening quantity"
 msgstr "استخراج موجودی اول دوره"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:386
+#: admin/partials/ssbhesabfa-admin-setting.php:398
 msgid ""
-"Export the products quantity and record the 'products opening quantity' in "
-"the Hesabfa"
+"Export the products quantity and record the 'products opening quantity' in the "
+"Hesabfa"
 msgstr "استخراج موجودی محصولات و ثبت موجودی اول دوره در حسابفا"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:398
+#: admin/partials/ssbhesabfa-admin-setting.php:410
 msgid "Export Customers"
 msgstr "خروجی مشتریان"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:401
+#: admin/partials/ssbhesabfa-admin-setting.php:413
 msgid "Export and add all online store customers to Hesabfa."
 msgstr "افزودن تمامی مشتریان فروشگاه آنلاین در حسابفا"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:413
-msgid "Sync completed; All hesabfa changes synced successfully."
+#: admin/partials/ssbhesabfa-admin-setting.php:425
+msgid "Sync completed, All hesabfa changes synced successfully."
 msgstr "همسان‌سازی پایان یافت. تمامی تغییرات با حسابفا همسان شد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:421
-msgid "Sync completed; All products added/updated."
+#: admin/partials/ssbhesabfa-admin-setting.php:433
+msgid "Sync completed, All products added/updated."
 msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:425
-msgid "Sync completed; No product added/updated."
-msgstr ""
+#: admin/partials/ssbhesabfa-admin-setting.php:437
+msgid "Sync completed, No product added/updated."
+msgstr "همسان‌سازی پایان یافت. هیچ محصولی به‌روزرسانی/افزوده شدند."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:436
+#: admin/partials/ssbhesabfa-admin-setting.php:448
 #, php-format
 msgid "Order sync completed. %s order added."
 msgstr "همسان‌سازی پایان یافت. %s محصول به‌روزرسانی/افزوده شد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:441
+#: admin/partials/ssbhesabfa-admin-setting.php:453
 msgid "The date entered is not within the fiscal year."
 msgstr "تاریخ وارد شده در محدوده سال مالی نمی‌باشد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:445
+#: admin/partials/ssbhesabfa-admin-setting.php:457
 msgid "Cannot sync orders. Please enter valid Date format."
 msgstr "امکان همسان سازی سفارشات نیست. لطفا تاریخ معتبری وارد نمایید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:452
+#: admin/partials/ssbhesabfa-admin-setting.php:464
 msgid "Sync can take several minutes."
 msgstr "همسان‌سازی ممکن است چند دقیقه زمان ببرد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:464
+#: admin/partials/ssbhesabfa-admin-setting.php:476
 msgid "Sync Changes"
 msgstr "همسان‌سازی تغییرات"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:467
+#: admin/partials/ssbhesabfa-admin-setting.php:479
 msgid "Sync all Hesabfa changes with Online Store."
 msgstr "همسان‌سازی تمامی تعییرات حسابفا با فروشگاه آن‌لاین"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:479
+#: admin/partials/ssbhesabfa-admin-setting.php:491
 msgid "Sync Products Quantity and Price"
 msgstr "همسان‌سازی قیمت و موجودی محصولات"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:482
+#: admin/partials/ssbhesabfa-admin-setting.php:494
 msgid "Sync quantity and price of products in hesabfa with online store."
 msgstr "همسان‌سازی قیمت و موجودی محصولات حسابفا با فروشگاه آن‌لاین"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:495
+#: admin/partials/ssbhesabfa-admin-setting.php:507
 msgid "Sync Orders"
 msgstr "همسان‌سازی سفارشات"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:498
+#: admin/partials/ssbhesabfa-admin-setting.php:510
 msgid "Sync/Add orders in online store with hesabfa from above date."
 msgstr "همسان‌سازی سفارشات فروشگاه آن‌لاین با حسابفا از تاریخ فوق"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:525
+#: admin/partials/ssbhesabfa-admin-setting.php:538
 msgid "Cannot check the last change ID. Error Message: "
 msgstr "امکان بررسی آخرین تغییرات وجود ندارد. شرح خطا:"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:535
+#: admin/partials/ssbhesabfa-admin-setting.php:548
 msgid ""
 "The fiscal year has passed or not arrived. Please check the fiscal year "
 "settings in Hesabfa."
 msgstr ""
-"سال مالی گذشته است یا هنوز فرا نرسیده است، لطفا تنظیمات سال مالی در حسابفا "
-"را بررسی کنید."
+"سال مالی گذشته است یا هنوز فرا نرسیده است، لطفا تنظیمات سال مالی در حسابفا را "
+"بررسی کنید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:553
+#: admin/partials/ssbhesabfa-admin-setting.php:566
 msgid "Hesabfa and WooCommerce default currency must be same."
 msgstr "واحد پول پیش‌فرض حسابفا و ووکامرس باید یکی باشد."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:558
+#: admin/partials/ssbhesabfa-admin-setting.php:571
 msgid "Cannot check the Hesabfa default currency. Error Message: "
 msgstr "امکان دریافت واحد پول پیش‌فرض حسابفا وجود ندارد. شرح خطا:"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:566
+#: admin/partials/ssbhesabfa-admin-setting.php:579
 msgid "API Setting updated. Test Successfully"
 msgstr "تنظیمات API به روزرسانی شد، اتصال موفقیت آمیز بود."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:573
+#: admin/partials/ssbhesabfa-admin-setting.php:586
 msgid "Cannot set Hesabfa webHook. Error Message:"
 msgstr "امکان تنظیم وب‌هوک در حسابفا وجود ندارد. شرح خطا:"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:582
-msgid ""
-"Cannot connect to Hesabfa servers. Please check your Internet connection"
+#: admin/partials/ssbhesabfa-admin-setting.php:595
+msgid "Cannot connect to Hesabfa servers. Please check your Internet connection"
 msgstr "اتصال به حسابفا برقرار نیست، لطفا اتصال اینترنت را بررسی نمایید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:598
+#: admin/partials/ssbhesabfa-admin-setting.php:611
 msgid "No need to set!"
 msgstr "عدم نیاز به تعریف!"
 
-#: admin/partials/ssbhesabfa-admin-setting.php:606
+#: admin/partials/ssbhesabfa-admin-setting.php:619
 msgid "Define at least one bank in Hesabfa"
 msgstr "حداقل یک حساب بانکی در حسابفا تعریف کنید."
 
-#: admin/partials/ssbhesabfa-admin-setting.php:614
-#: admin/partials/ssbhesabfa-admin-setting.php:618
+#: admin/partials/ssbhesabfa-admin-setting.php:627
+#: admin/partials/ssbhesabfa-admin-setting.php:631
 msgid "Cannot get Banks detail."
 msgstr "امکان دریافت اطلاعات بانک‌ها نیست."
 
@@ -472,3 +483,18 @@ msgstr "\tاتصال نرم‌افزار حسابداری ابری حسابفا 
 #. Author of the plugin/theme
 msgid "Saeed Sattar Beglou"
 msgstr "سعید ستاربگلو"
+
+#~ msgid "Sync completed; All hesabfa changes synced successfully."
+#~ msgstr "همسان‌سازی پایان یافت. تمامی تغییرات با حسابفا همسان شد."
+
+#~ msgid "Sync completed; All products added/updated."
+#~ msgstr "همسان‌سازی پایان یافت. تمامی محصولات به‌روزرسانی/افزوده شدند."
+
+#~ msgid "Sync completed; No product added/updated."
+#~ msgstr "همسان‌سازی پایان یافت. هیچ محصولی به‌روزرسانی/افزوده شدند."
+
+#~ msgid "Export product completed. %s product added/updated."
+#~ msgstr "استخراج پایان یافت. %s محصول به‌روزرسانی/افزوده شد."
+
+#~ msgid "Export customers completed. %s product added/updated."
+#~ msgstr "استخراج مشتریان پایان یافت. %s مشتری به‌روزرسانی/افزوده شد."
