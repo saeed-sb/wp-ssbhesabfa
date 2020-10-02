@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-10-01 18:40+0330\n"
-"PO-Revision-Date: 2020-10-01 18:41+0330\n"
+"POT-Creation-Date: 2020-10-02 10:58+0330\n"
+"PO-Revision-Date: 2020-10-02 10:58+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -94,15 +94,15 @@ msgstr ""
 "کنید و مجدد سعی کنید."
 
 #: admin/partials/ssbhesabfa-admin-functions.php:258
-#: admin/partials/ssbhesabfa-admin-functions.php:925
+#: admin/partials/ssbhesabfa-admin-functions.php:949
 msgid "Not Define"
 msgstr "وارد نشده"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:367
+#: admin/partials/ssbhesabfa-admin-functions.php:368
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:385
+#: admin/partials/ssbhesabfa-admin-functions.php:386
 msgid "Customer registered as a GuestCustomer."
 msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 

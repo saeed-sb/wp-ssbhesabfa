@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.1.1
+ * @version    1.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -257,6 +257,7 @@ class Ssbhesabfa_Admin_Functions
         if (empty($customer->get_first_name()) && empty($customer->get_last_name())) {
             $name = __('Not Define', 'ssbhesabfa');
         }
+
         switch ($type) {
             case 'first':
                 $data = array (
@@ -506,7 +507,7 @@ class Ssbhesabfa_Admin_Functions
     }
 
     //Invoice
-    public function setOrder($id_order, $orderType = 0)
+    public function setOrder($id_order, $orderType = 0, $reference = null)
     {
         if (!isset($id_order)) {
             return false;
@@ -518,7 +519,7 @@ class Ssbhesabfa_Admin_Functions
 
         if ($id_customer !== 0) {
             //set registered customer
-            $contactCode = $this->getObjectId('customer', $id_customer);
+            $contactCode = $this->getContactCodeByCustomerId($id_customer);
 
             // set customer if not exists
             if ($contactCode === false) {
@@ -576,7 +577,7 @@ class Ssbhesabfa_Admin_Functions
             $i++;
         }
 
-        $number = $this->getObjectId('order', $id_order);
+        $number = $this->getInvoiceNumberByOrderId($id_order);
         if (!$number) {
             $number = null;
         }
@@ -593,13 +594,17 @@ class Ssbhesabfa_Admin_Functions
                 $date = $date_obj->date('Y-m-d H:i:s');
         }
 
+        if ($reference === null) {
+            $reference = $id_order;
+        }
+
         $data = array (
             'Number' => $number,
             'InvoiceType' => $orderType,
             'ContactCode' => $contactCode,
             'Date' => $date,
             'DueDate' => $date,
-            'Reference' => $id_order,
+            'Reference' => $reference,
             'Status' => 2,
             'Tag' => json_encode(array('id_order' => $id_order)),
             'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
@@ -722,6 +727,9 @@ class Ssbhesabfa_Admin_Functions
             }
 
             $date_obj = $order->get_date_paid();
+            if ($date_obj == null) {
+                $date_obj = $order->get_date_modified();
+            }
 
             $response = $hesabfa->invoiceSavePayment($number, $bank_code, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id, $order->get_customer_ip_address());
 
@@ -736,6 +744,22 @@ class Ssbhesabfa_Admin_Functions
             }
         } else {
             Ssbhesabfa_Admin_Functions::log(array("Cannot add Hesabfa Invoice payment - Bank Code not define. Order ID: $id_order"));
+            return false;
+        }
+    }
+
+    public function getInvoiceNumberByOrderId($id_order)
+    {
+        if (!isset($id_order)) {
+            return false;
+        }
+
+        global $wpdb;
+        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM " . $wpdb->prefix . "ssbhesabfa WHERE `id_ps` = $id_order AND `obj_type` = 'order'");
+
+        if (is_object($row)) {
+            return $row->id_hesabfa;
+        } else {
             return false;
         }
     }
@@ -997,13 +1021,10 @@ class Ssbhesabfa_Admin_Functions
                 }
             }
 
-            $order = wc_get_order($id_order);
-            if ($order) {
-                $current_status = $order->get_status();
-                foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
-                    if ($status == $current_status) {
-                        $this->setOrder($id_order, 2);
-                    }
+            $current_status = $order->get_status();
+            foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
+                if ($status == $current_status) {
+                    $this->setOrder($id_order, 2, $this->getInvoiceCodeByOrderId($id_order));
                 }
             }
         }

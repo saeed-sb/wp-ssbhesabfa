@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.1.1
+ * @version    1.1.2
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -345,7 +345,7 @@ class Ssbhesabfa_Admin {
         foreach (get_option('ssbhesabfa_invoice_return_status') as $status) {
             if ($status == $to) {
                 $function = new Ssbhesabfa_Admin_Functions();
-                $function->setOrder($id_order, 2);
+                $function->setOrder($id_order, 2, $function->getInvoiceCodeByOrderId($id_order));
             }
         }
     }

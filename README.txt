@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * fix postal code character limit
 * change API tab position
 
+= 1.1.1 - 02.11.2020 =
+* add return sign on SaleInvoice
+* fix syncOrders bug
+* fix setContact bug
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
