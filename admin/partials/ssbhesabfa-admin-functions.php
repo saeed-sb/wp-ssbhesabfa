@@ -312,7 +312,7 @@ class Ssbhesabfa_Admin_Functions
                         'State' => $customer->get_shipping_state(),
                         'Country' => $customer->get_shipping_country(),
                         'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()), 0, 9),
-                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_shipping_phone()),
+                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
                         'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
                     )

@@ -93,10 +93,11 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * fix postal code character limit
 * change API tab position
 
-= 1.1.1 - 02.11.2020 =
+= 1.1.2 - 02.11.2020 =
 * add return sign on SaleInvoice
 * fix syncOrders bug
 * fix setContact bug
+* fix get_phone on Contact Shipping Address
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
