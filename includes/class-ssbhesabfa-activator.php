@@ -6,7 +6,7 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @class      Ssbhesabfa_Activator
- * @version    1.1.2
+ * @version    1.1.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -29,6 +29,7 @@ class Ssbhesabfa_Activator {
         add_option('ssbhesabfa_debug_mode', 0);
         add_option('ssbhesabfa_contact_address_status', 1);
         add_option('ssbhesabfa_contact_node_family', 'مشتریان فروشگاه آن‌لاین');
+        add_option('ssbhesabfa_activation_date', date("Y-m-d"));
 
         self::ssbhesabfa_create_database_table();
 	}

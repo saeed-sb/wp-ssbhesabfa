@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.1.2
+ * @version    1.1.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -76,6 +76,19 @@ class Ssbhesabfa_Admin_Functions
 
         Ssbhesabfa_Admin_Functions::log(array("Cannot connect to Hesabfa for get FiscalDate."));
         return false;
+    }
+
+    public function isDateAfterActivation($date) {
+        $activationDateTimeStamp = strtotime(get_option('ssbhesabfa_activation_date'));
+        $dateTimeStamp = strtotime($date);
+
+
+        if ($dateTimeStamp >= $activationDateTimeStamp) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public function getProductVariations($id_product) {
@@ -183,7 +196,7 @@ class Ssbhesabfa_Admin_Functions
 		        $json = json_decode($item->Tag);
 		        $id_ssb_hesabfa = $this->getObjectId('product', (int)$json->id_product, (int)$json->id_attribute);
 
-		        if ($id_ssb_hesabfa == null) {
+		        if ($id_ssb_hesabfa == false) {
 			        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
 				        'id_hesabfa' => (int)$item->Code,
 				        'obj_type' => 'product',
@@ -198,7 +211,7 @@ class Ssbhesabfa_Admin_Functions
 				        'obj_type' => 'product',
 				        'id_ps' => (int)$json->id_product,
 				        'id_ps_attribute' => (int)$json->id_attribute,
-			        ), array('id' => $this->getObjectId('product', $json->id_product, $json->id_attribute)));
+			        ), array('id' => $id_ssb_hesabfa));
 
 			        Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$item->Code.". Product ID: $json->id_product"));
 		        }
@@ -288,6 +301,7 @@ class Ssbhesabfa_Admin_Functions
                         'FirstName' => $customer->get_first_name(),
                         'LastName' => $customer->get_last_name(),
                         'ContactType' => 1,
+                        'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
                         'Address' => $customer->get_billing_address(),
                         'City' => $customer->get_billing_city(),
                         'State' => $customer->get_billing_state(),
@@ -307,6 +321,7 @@ class Ssbhesabfa_Admin_Functions
                         'FirstName' => $customer->get_first_name(),
                         'LastName' => $customer->get_last_name(),
                         'ContactType' => 1,
+                        'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
                         'Address' => $customer->get_shipping_address(),
                         'City' => $customer->get_shipping_city(),
                         'State' => $customer->get_shipping_state(),
@@ -513,10 +528,19 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
+        $number = $this->getInvoiceNumberByOrderId($id_order);
+        if (!$number) {
+            $number = null;
+
+            if ($orderType == 2) //return if saleInvoice not set before
+            {
+                return false;
+            }
+        }
+
         $order = new WC_Order($id_order);
 
         $id_customer = $order->get_customer_id();
-
         if ($id_customer !== 0) {
             //set registered customer
             $contactCode = $this->getContactCodeByCustomerId($id_customer);
@@ -577,11 +601,6 @@ class Ssbhesabfa_Admin_Functions
             $i++;
         }
 
-        $number = $this->getInvoiceNumberByOrderId($id_order);
-        if (!$number) {
-            $number = null;
-        }
-
         $date_obj = $order->get_date_created();
         switch ($orderType) {
             case 0:
@@ -625,7 +644,7 @@ class Ssbhesabfa_Admin_Functions
                     break;
             }
 
-            if ($number == null) {
+            if ($number === null) {
                 $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
                     'id_hesabfa' => (int)$response->Result->Number,
                     'obj_type' => $obj_type,
@@ -637,7 +656,7 @@ class Ssbhesabfa_Admin_Functions
                     'id_hesabfa' => (int)$response->Result->Number,
                     'obj_type' => $obj_type,
                     'id_ps' => $id_order,
-                ), array('id' => $this->getObjectId('order', $id_order)));
+                ), array('id' => $this->getObjectId($obj_type, $id_order)));
                 Ssbhesabfa_Admin_Functions::log(array("Invoice successfully updated. Invoice number: ".(string)$response->Result->Number.". Order ID: $id_order"));
             }
 
@@ -731,7 +750,7 @@ class Ssbhesabfa_Admin_Functions
                 $date_obj = $order->get_date_modified();
             }
 
-            $response = $hesabfa->invoiceSavePayment($number, $bank_code, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id, $order->get_customer_ip_address());
+            $response = $hesabfa->invoiceSavePayment($number, $bank_code, $date_obj->date('Y-m-d H:i:s'), $this->getPriceInHesabfaDefaultCurrency($order->get_total()), $transaction_id);
 
             if ($response->Success) {
                 Ssbhesabfa_Admin_Functions::log(array("Hesabfa invoice payment added. Order ID: $id_order"));
@@ -916,20 +935,23 @@ class Ssbhesabfa_Admin_Functions
             }
         }
 
-        //call API when at least one product exists
-        if (!empty($items)) {
+        if (!empty($items)) //call API when at least one product exists
+        {
             $hesabfa = new Ssbhesabfa_Api();
             $response = $hesabfa->itemUpdateOpeningQuantity($items);
             if ($response->Success) {
                 Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - Opening quantity successfully added.'));
-                return true;
+                return 'true';
             } else {
                 Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - Cannot set Opening quantity. Error Code: ' . $response->ErrorCode . '. Error Message: ' . $response->ErrorMessage));
-                return false;
+                if ($response->ErrorCode = 199 && $response->ErrorMessage == 'No-Shareholders-Exist') {
+                    return 'shareholderError';
+                }
+                return 'false';
             }
         } else {
             Ssbhesabfa_Admin_Functions::log(array('ssbhesabfa - No product available for set Opening quantity.'));
-            return true;
+            return 'noProduct';
         }
     }
 
@@ -1002,6 +1024,14 @@ class Ssbhesabfa_Admin_Functions
             return false;
         }
 
+        if (empty($from_date)) {
+            return 'inputDateError';
+        }
+
+        if (!$this->isDateAfterActivation($from_date)) {
+            return 'activationDateError';
+        }
+
         if (!$this->isDateInFiscalYear($from_date)) {
             return 'fiscalYearError';
         }
@@ -1027,6 +1057,10 @@ class Ssbhesabfa_Admin_Functions
                     $this->setOrder($id_order, 2, $this->getInvoiceCodeByOrderId($id_order));
                 }
             }
+        }
+
+        if (empty($id_orders)) {
+            return 'zeroProduct';
         }
 
         return $id_orders;

@@ -153,9 +153,9 @@ class Ssbhesabfa_Webhook
             if ($id_order == 0) {
                 Ssbhesabfa_Admin_Functions::log(array("This invoice is not define in OnlineStore. Order Number: " . $number));
             } else {
-                //check if order exist in prestashop
+                //check if order exist in wooCommerce
                 $id_obj = Ssbhesabfa_Admin_Functions::getObjectId('order', $id_order);
-                if ($id_obj > 0) {
+                if ($id_obj != false) {
                     global $wpdb;
                     $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj");
                     if (is_object($row) && $row->id_hesabfa != $number) {
@@ -196,7 +196,7 @@ class Ssbhesabfa_Webhook
 
         //check if customer exist in prestashop
         $id_obj = Ssbhesabfa_Admin_Functions::getObjectId('customer', $id_customer);
-        if ($id_obj > 0) {
+        if ($id_obj != false) {
             global $wpdb;
             $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj");
 
@@ -237,7 +237,7 @@ class Ssbhesabfa_Webhook
 
         //check if product exist in prestashop
         $id_obj = Ssbhesabfa_Admin_Functions::getObjectId('product', $id_product, $id_attribute);
-        if ($id_obj > 0) {
+        if ($id_obj != false) {
             $product = new WC_Product($id_product);
 
             //1.set new Hesabfa Item Code if changes
@@ -253,7 +253,7 @@ class Ssbhesabfa_Webhook
             }
 
             //2.set new Price
-            if (get_option('ssbhesabfa_item_update_price')) {
+            if (get_option('ssbhesabfa_item_update_price') == 'yes') {
                 if ($id_attribute != 0) {
                     $variation = new WC_Product_Variation($id_attribute);
                     $price = Ssbhesabfa_Admin_Functions::getPriceInHesabfaDefaultCurrency($variation->get_price);
@@ -279,7 +279,7 @@ class Ssbhesabfa_Webhook
             }
 
             //3.set new Quantity
-            if (get_option('ssbhesabfa_item_update_quantity')) {
+            if (get_option('ssbhesabfa_item_update_quantity') == 'yes') {
                 if ($id_attribute != 0) {
                     $variation = new WC_Product_Variation($id_attribute);
                     if ($item->Stock != $variation->get_stock_quantity()) {
@@ -307,7 +307,7 @@ class Ssbhesabfa_Webhook
             }
         }
     }
-    
+
 	public function getObjectsByIdList($idList, $type) {
 		$hesabfaApi = new Ssbhesabfa_Api();
 		switch ($type) {

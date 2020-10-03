@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Display
- * @version    1.1.2
+ * @version    1.1.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/display

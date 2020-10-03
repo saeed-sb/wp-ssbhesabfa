@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.1.2
+ * @version    1.1.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -315,10 +315,10 @@ class Ssbhesabfa_Setting {
 
     public static function ssbhesabfa_export_setting() {
         // Export - Bulk product export offers
-        $productExportResult = (isset($_GET['productExportResult'])) ? (bool)wc_clean($_GET['productExportResult']) : null;
+        $productExportResult = (isset($_GET['productExportResult'])) ? wc_clean($_GET['productExportResult']) : null;
         if (!is_null($productExportResult) && $productExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
-            if ($processed === 0) {
+            if ($processed == 0) {
                 echo '<div class="updated">';
                 echo '<p>' . __('No products were exported, All products were exported or there are no product', 'ssbhesabfa');
                 echo '</div>';
@@ -327,29 +327,41 @@ class Ssbhesabfa_Setting {
                 echo '<p>' . sprintf(__('Export products completed. %s products added/updated.', 'ssbhesabfa'), $processed);
                 echo '</div>';
             }
-        } elseif (!is_null($productExportResult) && $productExportResult === 'false') {
+        } elseif ($productExportResult === 'false') {
             echo '<div class="updated">';
             echo '<p>' . __('Export products fail. Please check the log file.', 'ssbhesabfa');
             echo '</div>';
         }
 
         // Export - Product opening quantity export offers
-        $productOpeningQuantityExportResult = (isset($_GET['productOpeningQuantityExportResult'])) ? (bool)wc_clean($_GET['productOpeningQuantityExportResult']) : null;
+        $productOpeningQuantityExportResult = (isset($_GET['productOpeningQuantityExportResult'])) ? wc_clean($_GET['productOpeningQuantityExportResult']) : null;
         if (!is_null($productOpeningQuantityExportResult) && $productOpeningQuantityExportResult === 'true') {
             echo '<div class="updated">';
             echo '<p>' . __('Export product opening quantity completed.');
             echo '</div>';
         } elseif (!is_null($productOpeningQuantityExportResult) && $productOpeningQuantityExportResult === 'false') {
-            echo '<div class="updated">';
-            echo '<p>' . __('Export product opening quantity fail. Please check the log file.', 'ssbhesabfa');
-            echo '</div>';
+            $shareholderError = (isset($_GET['shareholderError'])) ? wc_clean($_GET['shareholderError']) : null;
+            $noProduct = (isset($_GET['noProduct'])) ? wc_clean($_GET['noProduct']) : null;
+            if ($shareholderError == 'true') {
+                echo '<div class="error">';
+                echo '<p>' . __('Export product opening quantity fail. No Shareholder exists, Please define Shareholder in Hesabfa', 'ssbhesabfa');
+                echo '</div>';
+            } elseif ($noProduct == 'true') {
+                echo '<div class="error">';
+                echo '<p>' . __('No product available for Export product opening quantity.', 'ssbhesabfa');
+                echo '</div>';
+            } else {
+                echo '<div class="error">';
+                echo '<p>' . __('Export product opening quantity fail. Please check the log file.', 'ssbhesabfa');
+                echo '</div>';
+            }
         }
 
         // Export - Bulk customer export offers
         $customerExportResult = (isset($_GET['customerExportResult'])) ? wc_clean($_GET['customerExportResult']) : null;
         if (!is_null($customerExportResult) && $customerExportResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
-            if ($processed === 0) {
+            if ($processed == 0) {
                 echo '<div class="updated">';
                 echo '<p>' . __('No customers were exported, All customers were exported or there are no customer', 'ssbhesabfa');
                 echo '</div>';
@@ -368,91 +380,97 @@ class Ssbhesabfa_Setting {
         <div class="notice notice-info">
             <p><?php echo __('Export can take several minutes.', 'ssbhesabfa') ?></p>
         </div>
-            <br>
-            <form id="ssbhesabfa_export_products" autocomplete="off"
-                  action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
-                  method="post">
+        <br>
+        <form id="ssbhesabfa_export_products" autocomplete="off"
+              action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
+              method="post">
+            <div>
                 <div>
+                    <label for="ssbhesabfa-export-product-submit"></label>
                     <div>
-                        <label for="ssbhesabfa-export-product-submit"></label>
-                        <div>
-                            <button class="button button-primary" id="ssbhesabfa-export-product-submit"
-                                    name="ssbhesabfa-export-product-submit"><?php echo __('Export Products', 'ssbhesabfa'); ?></button>
-                        </div>
+                        <button class="button button-primary" id="ssbhesabfa-export-product-submit"
+                                name="ssbhesabfa-export-product-submit"><?php echo __('Export Products', 'ssbhesabfa'); ?></button>
                     </div>
-                    <p><?php echo __('Export and add all online store products to Hesabfa', 'ssbhesabfa'); ?></p>
                 </div>
-            </form>
-            <br>
-            <form id="ssbhesabfa_export_products_opening_quantity" autocomplete="off"
-                  action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
-                  method="post">
+                <p><?php echo __('Export and add all online store products to Hesabfa', 'ssbhesabfa'); ?></p>
+            </div>
+        </form>
+        <br>
+        <form id="ssbhesabfa_export_products_opening_quantity" autocomplete="off"
+              action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
+              method="post">
+            <div>
                 <div>
+                    <label for="ssbhesabfa-export-product-opening-quantity-submit"></label>
                     <div>
-                        <label for="ssbhesabfa-export-product-opening-quantity-submit"></label>
-                        <div>
-                            <button class="button button-primary" id="ssbhesabfa-export-product-opening-quantity-submit"
-                                    name="ssbhesabfa-export-product-opening-quantity-submit"><?php echo __('Export Products opening quantity', 'ssbhesabfa'); ?></button>
-                        </div>
+                        <button class="button button-primary" id="ssbhesabfa-export-product-opening-quantity-submit"
+                                name="ssbhesabfa-export-product-opening-quantity-submit"><?php echo __('Export Products opening quantity', 'ssbhesabfa'); ?></button>
                     </div>
-                    <p><?php echo __('Export the products quantity and record the \'products opening quantity\' in the Hesabfa', 'ssbhesabfa'); ?></p>
                 </div>
-            </form>
-            <br>
-            <form id="ssbhesabfa_export_customers" autocomplete="off"
-                  action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
-                  method="post">
+                <p><?php echo __('Export the products quantity and record the \'products opening quantity\' in the Hesabfa', 'ssbhesabfa'); ?></p>
+            </div>
+        </form>
+        <br>
+        <form id="ssbhesabfa_export_customers" autocomplete="off"
+              action="<?php echo admin_url('admin.php?page=ssbhesabfa-option&tab=export'); ?>"
+              method="post">
+            <div>
                 <div>
+                    <label for="ssbhesabfa-export-customer-submit"></label>
                     <div>
-                        <label for="ssbhesabfa-export-customer-submit"></label>
-                        <div>
-                            <button class="button button-primary" id="ssbhesabfa-export-customer-submit"
-                                    name="ssbhesabfa-export-customer-submit"><?php echo __('Export Customers', 'ssbhesabfa'); ?></button>
-                        </div>
+                        <button class="button button-primary" id="ssbhesabfa-export-customer-submit"
+                                name="ssbhesabfa-export-customer-submit"><?php echo __('Export Customers', 'ssbhesabfa'); ?></button>
                     </div>
-                    <p><?php echo __('Export and add all online store customers to Hesabfa.', 'ssbhesabfa'); ?></p>
                 </div>
-            </form>
-        </div>
+                <p><?php echo __('Export and add all online store customers to Hesabfa.', 'ssbhesabfa'); ?></p>
+            </div>
+        </form>
         <?php
     }
 
+
     public static function ssbhesabfa_sync_setting() {
         // Sync - Bulk changes sync offers
-        $changesSyncResult = (isset($_GET['changesSyncResult'])) ? (bool)wc_clean($_GET['changesSyncResult']) : false;
-        if ($changesSyncResult) {
+        $changesSyncResult = (isset($_GET['changesSyncResult'])) ? wc_clean($_GET['changesSyncResult']) : false;
+        if (!is_null($changesSyncResult) && $changesSyncResult == 'true') {
             echo '<div class="updated">';
             echo '<p>' . __('Sync completed, All hesabfa changes synced successfully.', 'ssbhesabfa');
             echo '</div>';
         }
 
         // Sync - Bulk product sync offers
-        $productSyncResult = (isset($_GET['productSyncResult'])) ? (bool)wc_clean($_GET['productSyncResult']) : null;
-        if (!is_null($productSyncResult) && $productSyncResult) {
+        $productSyncResult = (isset($_GET['productSyncResult'])) ? wc_clean($_GET['productSyncResult']) : null;
+        if (!is_null($productSyncResult) && $productSyncResult == 'true') {
             echo '<div class="updated">';
-            echo '<p>' . __('Sync completed, All products added/updated.', 'ssbhesabfa');
+            echo '<p>' . __('Sync completed, All products price/quantity synced successfully.', 'ssbhesabfa');
             echo '</div>';
-        } elseif (!is_null($productSyncResult) && !$productSyncResult) {
-            echo '<div class="updated">';
-            echo '<p>' . __('Sync completed, No product added/updated.', 'ssbhesabfa');
+        } elseif (!is_null($productSyncResult) && !$productSyncResult == 'false') {
+            echo '<div class="error">';
+            echo '<p>' . __('Sync products fail. Please check the log file.', 'ssbhesabfa');
             echo '</div>';
         }
 
         // Sync - Bulk invoice sync offers
-        $orderSyncResult = (isset($_GET['orderSyncResult'])) ? (bool)wc_clean($_GET['orderSyncResult']) : null;
-        $fiscal = (isset($_GET['fiscal'])) ? (bool)wc_clean($_GET['fiscal']) : null;
+        $orderSyncResult = (isset($_GET['orderSyncResult'])) ? wc_clean($_GET['orderSyncResult']) : null;
 
-        if (!is_null($orderSyncResult) && $orderSyncResult) {
+        if (!is_null($orderSyncResult) && $orderSyncResult === 'true') {
             $processed = (isset($_GET['processed'])) ? wc_clean($_GET['processed']) : null;
             echo '<div class="updated">';
             echo '<p>' . sprintf(__('Order sync completed. %s order added.', 'ssbhesabfa'), $processed);
             echo '</div>';
-        } elseif (!is_null($orderSyncResult) && !$orderSyncResult) {
-            if (!is_null($fiscal) && $fiscal) {
+        } elseif (!is_null($orderSyncResult) && $orderSyncResult === 'false') {
+            $fiscal = (isset($_GET['fiscal'])) ? wc_clean($_GET['fiscal']) : false;
+            $activationDate = (isset($_GET['activationDate'])) ? wc_clean($_GET['activationDate']) : false;
+
+            if ($fiscal === 'true') {
                 echo '<div class="error">';
                 echo '<p>' . __('The date entered is not within the fiscal year.', 'ssbhesabfa');
                 echo '</div>';
-            } elseif (!is_null($fiscal) && !$fiscal) {
+            } elseif ($activationDate === 'true') {
+                echo '<div class="error">';
+                echo '<p>' . __('Invoices are not synced before installing the plugin.', 'ssbhesabfa');
+                echo '</div>';
+            } else {
                 echo '<div class="error">';
                 echo '<p>' . __('Cannot sync orders. Please enter valid Date format.', 'ssbhesabfa');
                 echo '</div>';
@@ -512,6 +530,7 @@ class Ssbhesabfa_Setting {
         </form>
         <?php
     }
+
 
     public static function ssbhesabfa_set_webhook() {
         $url = get_site_url() . '/index.php?ssbhesabfa_webhook=1&token=' . substr(wp_hash(AUTH_KEY . 'ssbhesabfa/webhook'), 0, 10);

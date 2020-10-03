@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.1.2
+ * @version    1.1.3
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -162,8 +162,8 @@ class Ssbhesabfa_Admin {
     public function adminExportProductsCallback() {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
-
             $update_count = $func->exportProducts();
+
             if ($update_count === false) {
                 $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productExportResult=false');
             } else {
@@ -176,17 +176,25 @@ class Ssbhesabfa_Admin {
     }
 
     /*
-     * Action - Ajax 'export products Opening Quntity' from Hesabfa/Export tab
+     * Action - Ajax 'export products Opening Quantity' from Hesabfa/Export tab
      * @since	1.0.6
      */
     public function adminExportProductsOpeningQuantityCallback() {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
             $func = new Ssbhesabfa_Admin_Functions();
-
-            if (!$func->exportOpeningQuantity()) {
-                $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false');
-            } else {
-                $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=true');
+            switch ($func->exportOpeningQuantity()) {
+                case 'true':
+                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=true');
+                    break;
+                case 'false':
+                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false');
+                    break;
+                case 'shareholderError':
+                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false&shareholderError=true');
+                    break;
+                case 'noProduct':
+                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=false&noProduct=true');
+                    break;
             }
             echo $redirect_url;
 
@@ -219,10 +227,10 @@ class Ssbhesabfa_Admin {
      */
     public function adminSyncChangesCallback() {
         if (is_admin() && (defined('DOING_AJAX') || DOING_AJAX)) {
-
+            include (plugin_dir_path( __DIR__ ) . 'includes/class-ssbhesabfa-webhook.php');
             new Ssbhesabfa_Webhook();
 
-            $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync$changesSyncResult=true');
+            $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&changesSyncResult=true');
             echo $redirect_url;
 
             die(); // this is required to return a proper result
@@ -266,13 +274,26 @@ class Ssbhesabfa_Admin {
                 $func = new Ssbhesabfa_Admin_Functions();
                 $syncOrders = $func->syncOrders($from_date);
 
-                if ($syncOrders == false) {
-                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=0&fiscal=0');
-                } elseif ($syncOrders == 'fiscalYearError') {
-                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=0&fiscal=1');
-                } else {
-                    $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=true&processed=' . count($syncOrders));
+                switch ($syncOrders) {
+                    case false:
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=false');
+                        break;
+                    case 'fiscalYearError':
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=false&fiscal=true');
+                        break;
+                    case 'activationDateError':
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=false&activationDate=true');
+                        break;
+                    case 'inputDateError':
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=false');
+                        break;
+                    case 'zeroProduct':
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=true&processed=0');
+                        break;
+                    default:
+                        $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=sync&orderSyncResult=true&processed=' . count($syncOrders));
                 }
+
                 echo $redirect_url;
             }
             die(); // this is required to return a proper result
@@ -312,18 +333,20 @@ class Ssbhesabfa_Admin {
     {
         $func = new Ssbhesabfa_Admin_Functions();
         $id_obj = $func->getObjectId('customer', $id_customer);
-        global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
+        if ($id_obj != false) {
+            global $wpdb;
+            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'customer'");
 
-        if (is_object($row)) {
-            $hesabfaApi = new Ssbhesabfa_Api();
-            $hesabfaApi->contactDelete($row->id_hesabfa);
+            if (is_object($row)) {
+                $hesabfaApi = new Ssbhesabfa_Api();
+                $hesabfaApi->contactDelete($row->id_hesabfa);
+            }
+
+            global $wpdb;
+            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_customer));
+
+            Ssbhesabfa_Admin_Functions::log(array("Customer deleted. Customer ID: $id_customer"));
         }
-
-        global $wpdb;
-        $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_customer));
-
-        Ssbhesabfa_Admin_Functions::log(array("Customer deleted. Customer ID: $id_customer"));
     }
 
     //Invoice
@@ -371,17 +394,20 @@ class Ssbhesabfa_Admin {
     {
         $func = new Ssbhesabfa_Admin_Functions();
         $id_obj = $func->getObjectId('product', $id_product, 0);
-        global $wpdb;
-        $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'product'");
+        if ($id_obj != false) {
+            global $wpdb;
+            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'product'");
 
-        if (is_object($row)) {
-            $hesabfaApi = new Ssbhesabfa_Api();
-            $hesabfaApi->itemDelete($row->id_hesabfa);
+            if (is_object($row)) {
+                $hesabfaApi = new Ssbhesabfa_Api();
+                $hesabfaApi->itemDelete($row->id_hesabfa);
+            }
+
+            global $wpdb;
+            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_product));
+
+            Ssbhesabfa_Admin_Functions::log(array("Product deleted. Product ID: $id_product"));
+
         }
-
-        global $wpdb;
-        $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_product));
-
-        Ssbhesabfa_Admin_Functions::log(array("Product deleted. Product ID: $id_product"));
     }
 }
