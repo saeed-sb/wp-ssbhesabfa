@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.1.3
+ * @version    1.1.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -184,6 +184,7 @@ class Ssbhesabfa_Admin {
             $func = new Ssbhesabfa_Admin_Functions();
             switch ($func->exportOpeningQuantity()) {
                 case 'true':
+                    update_option('ssbhesabfa_use_export_product_opening_quantity', true);
                     $redirect_url = admin_url('admin.php?page=ssbhesabfa-option&tab=export&productOpeningQuantityExportResult=true');
                     break;
                 case 'false':

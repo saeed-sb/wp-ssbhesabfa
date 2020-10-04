@@ -404,7 +404,7 @@ class Ssbhesabfa_Setting {
                     <label for="ssbhesabfa-export-product-opening-quantity-submit"></label>
                     <div>
                         <button class="button button-primary" id="ssbhesabfa-export-product-opening-quantity-submit"
-                                name="ssbhesabfa-export-product-opening-quantity-submit"><?php echo __('Export Products opening quantity', 'ssbhesabfa'); ?></button>
+                                name="ssbhesabfa-export-product-opening-quantity-submit"<?php if (get_option('ssbhesabfa_use_export_product_opening_quantity') == true) echo 'disabled'; ?>><?php echo __('Export Products opening quantity', 'ssbhesabfa'); ?></button>
                     </div>
                 </div>
                 <p><?php echo __('Export the products quantity and record the \'products opening quantity\' in the Hesabfa', 'ssbhesabfa'); ?></p>

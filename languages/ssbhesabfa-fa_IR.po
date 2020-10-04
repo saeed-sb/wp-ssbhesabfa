@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-10-03 22:42+0330\n"
-"PO-Revision-Date: 2020-10-03 22:42+0330\n"
+"POT-Creation-Date: 2020-10-04 13:23+0330\n"
+"PO-Revision-Date: 2020-10-04 13:23+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -94,7 +94,7 @@ msgstr ""
 "کنید و مجدد سعی کنید."
 
 #: admin/partials/ssbhesabfa-admin-functions.php:271
-#: admin/partials/ssbhesabfa-admin-functions.php:971
+#: admin/partials/ssbhesabfa-admin-functions.php:977
 msgid "Not Define"
 msgstr "وارد نشده"
 
@@ -393,7 +393,7 @@ msgstr "همسان‌سازی محصولات با خطا مواجه شد. لطف
 #: admin/partials/ssbhesabfa-admin-setting.php:459
 #, php-format
 msgid "Order sync completed. %s order added."
-msgstr "همسان‌سازی پایان یافت. %s محصول به‌روزرسانی/افزوده شد."
+msgstr "همسان‌سازی پایان یافت. %s فاکتور به‌روزرسانی/افزوده شد."
 
 #: admin/partials/ssbhesabfa-admin-setting.php:467
 msgid "The date entered is not within the fiscal year."

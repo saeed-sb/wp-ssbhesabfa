@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.1.3
+ * @version    1.1.4
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -230,7 +230,7 @@ class Ssbhesabfa_Admin_Functions
 
         $path = get_term_parents_list($id_category, 'product_cat', array(
             'format' => 'name',
-            'separator' => '/',
+            'separator' => ':',
             'link' => false,
             'inclusive' => true,
         ));
@@ -812,7 +812,13 @@ class Ssbhesabfa_Admin_Functions
     //Export
     public function exportProducts()
     {
-        $args = array('post_type' => 'product', 'posts_per_page' => -1);
+        $args = array(
+            'post_type' => 'product',
+            'post_status' => array('publish', 'private'),
+            'orderby' => 'ID',
+            'order' => 'ASC',
+            'posts_per_page' => -1
+        );
         $products = get_posts($args);
 
         $items = array();

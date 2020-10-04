@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,12 +99,18 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * fix setContact bug
 * fix get_phone on Contact Shipping Address
 
-= 1.1.2 - 03.11.2020 =
+= 1.1.3 - 03.11.2020 =
 * add limit to sync order function
 * check Shareholder available on ExportProductOpeningQuantity
 * improve notices
 * remove customer ip on payment description
-* fix syncChanges Buttom
+* fix syncChanges Button
+
+= 1.1.4 - 04.11.2020 =
+* use exportOpeningQuantity only one time
+* fix product category path
+* fix some translations
+* export published and private products
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
