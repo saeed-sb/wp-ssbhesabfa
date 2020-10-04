@@ -234,7 +234,8 @@ class Ssbhesabfa_Admin_Functions
             'link' => false,
             'inclusive' => true,
         ));
-        return $path;
+
+        return substr('products: ' . $path, 0, -1);
     }
 
     //Contact
