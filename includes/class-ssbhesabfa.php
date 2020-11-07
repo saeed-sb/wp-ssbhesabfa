@@ -10,7 +10,7 @@
  * version of the plugin.
  *
  * @class      Ssbhesabfa
- * @version    1.1.4
+ * @version    1.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/includes
@@ -60,7 +60,7 @@ class Ssbhesabfa {
 		if ( defined( 'SSBHESABFA_VERSION' ) ) {
 			$this->version = SSBHESABFA_VERSION;
 		} else {
-			$this->version = '1.1.4';
+			$this->version = '1.1.5';
 		}
 		$this->plugin_name = 'ssbhesabfa';
 
@@ -108,6 +108,13 @@ class Ssbhesabfa {
 		 * The class responsible for defining all Hesabfa API methods
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ssbhesabfa-api.php';
+
+		$this->loader = new Ssbhesabfa_Loader();
+
+		/**
+		 * The class responsible for defining all Hesabfa data Validations
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ssbhesabfa-validation.php';
 
 		$this->loader = new Ssbhesabfa_Loader();
 
@@ -181,11 +188,22 @@ class Ssbhesabfa {
                 $this->loader->add_action('delete_user', $plugin_admin, 'ssbhesabfa_hook_delete_user');
 
                 //Runs when a product is added.
-                $this->loader->add_action('woocommerce_new_product', $plugin_admin, 'ssbhesabfa_hook_new_product');
+//                $this->loader->add_action('woocommerce_new_product', $plugin_admin, 'ssbhesabfa_hook_new_product');
+//                $this->loader->add_action('woocommerce_new_product_variation', $plugin_admin, 'ssbhesabfa_hook_new_product_variation', 10, 2);
                 //Runs when a product is updated.
                 $this->loader->add_action('woocommerce_update_product', $plugin_admin, 'ssbhesabfa_hook_new_product');
+//                $this->loader->add_action('woocommerce_update_product_variation', $plugin_admin, 'ssbhesabfa_hook_new_product');
                 //Runs when a product is deleted.
                 $this->loader->add_action('woocommerce_delete_product', $plugin_admin, 'ssbhesabfa_hook_delete_product');
+                $this->loader->add_action('woocommerce_delete_product_variation', $plugin_admin, 'ssbhesabfa_hook_delete_product_variation');
+
+                //Display Hesabfa item code in Product data section
+                $this->loader->add_action('woocommerce_product_options_general_product_data', $plugin_admin, 'ssbhesabfa_hook_product_options_general_product_data');
+                $this->loader->add_action('woocommerce_process_product_meta', $plugin_admin, 'ssbhesabfa_hook_process_product_meta');
+                //Display Hesabfa item code in Product variable attribute section
+                $this->loader->add_action('woocommerce_product_after_variable_attributes', $plugin_admin, 'ssbhesabfa_hook_product_after_variable_attributes', 10, 3);
+                $this->loader->add_action('woocommerce_save_product_variation', $plugin_admin, 'ssbhesabfa_hook_save_product_variation', 10, 3);
+
             } elseif (!get_option('ssbhesabfa_live_mode')) {
                 $this->loader->add_action('admin_notices', $plugin_admin, 'ssbhesabfa_live_mode_notice');
             }

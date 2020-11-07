@@ -49,13 +49,19 @@ class Ssbhesabfa_Webhook
 					            $id_obj = Ssbhesabfa_Admin_Functions::getObjectIdByCode('customer', $item->Extra);
 					            global $wpdb;
 					            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $id_obj));
-//
+
 					            break;
 				            }
 
 				            $this->contactsObjectId[] = $item->ObjectId;
                             break;
 		            }
+
+		            switch ($item->Action) {
+                        case '101':
+                            $func = new Ssbhesabfa_Admin_Functions();
+                            $func->syncProducts();
+                    }
 	            }
             }
 

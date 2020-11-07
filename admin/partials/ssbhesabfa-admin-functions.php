@@ -2,12 +2,13 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.1.4
+ * @version    1.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
  * @author     Saeed Sattar Beglou <saeed.sb@gmail.com>
  */
+
 class Ssbhesabfa_Admin_Functions
 {
     public static function getObjectId($type, $id_ps, $id_ps_attribute = 0)
@@ -133,9 +134,9 @@ class Ssbhesabfa_Admin_Functions
 
 		    $item = array(
 			    'Code'        => $code,
-			    'Name'        => mb_substr( $product->get_title(), 0, 99 ),
+			    'Name'        => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
 			    'ItemType'    => $product->is_virtual() == 1 ? 1 : 0,
-			    'Barcode'     => $product->get_sku(),
+			    'Barcode'     => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
 			    'Tag'         => json_encode( array( 'id_product' => $id_product, 'id_attribute' => 0 ) ),
 //			    'Active' => $product->active ? true : false,
 			    'NodeFamily'  => $this->getCategoryPath( $categories[0] ),
@@ -148,25 +149,25 @@ class Ssbhesabfa_Admin_Functions
 
 		    $items[] = $item;
 
-		    $variations = $this->getProductVariations( $id_product );
-		    if ( $variations != false ) {
-			    foreach ( $variations as $variation ) {
+		    $variations = $this->getProductVariations($id_product);
+		    if ($variations != false) {
+			    foreach ($variations as $variation) {
 				    $id_attribute = $variation->get_id();
-				    $code         = $this->getItemCodeByProductId( $id_product, $id_attribute );
-				    if ( ! $code ) {
+				    $code = $this->getItemCodeByProductId($id_product, $id_attribute);
+				    if (!$code) {
 					    $code = null;
 				    }
 				    $item = array(
-					    'Code'        => $code,
-					    'Name'        => mb_substr( $variation->get_name(), 0, 99 ),
-					    'ItemType'    => $variation->is_virtual() == 1 ? 1 : 0,
-					    'Barcode'     => $variation->get_sku(),
-					    'Tag'         => json_encode( array(
+					    'Code' => $code,
+					    'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
+					    'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
+					    'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
+					    'Tag' => json_encode(array(
 						    'id_product'   => $id_product,
 						    'id_attribute' => $id_attribute
-					    ) ),
+					    )),
 //					    'Active' => $product->active ? true : false,
-					    'NodeFamily'  => $this->getCategoryPath( $categories[0] ),
+					    'NodeFamily'  => $this->getCategoryPath($categories[0]),
 					    'ProductCode' => $id_product,
 				    );
 
@@ -204,7 +205,7 @@ class Ssbhesabfa_Admin_Functions
 				        'id_ps_attribute' => (int)$json->id_attribute,
 			        ));
 
-			        Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item code: ".(string)$item->Code.". Product ID: $json->id_product"));
+			        Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item code: ".(string)$item->Code.". Product ID: $json->id_product-$json->id_attribute"));
 		        } else {
 			        $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
 				        'id_hesabfa' => (int)$item->Code,
@@ -213,7 +214,7 @@ class Ssbhesabfa_Admin_Functions
 				        'id_ps_attribute' => (int)$json->id_attribute,
 			        ), array('id' => $id_ssb_hesabfa));
 
-			        Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$item->Code.". Product ID: $json->id_product"));
+			        Ssbhesabfa_Admin_Functions::log(array("Item successfully updated. Item code: ".(string)$item->Code.". Product ID: $json->id_product-$json->id_attribute"));
 		        }
 	        }
             return true;
@@ -278,19 +279,19 @@ class Ssbhesabfa_Admin_Functions
                     array(
                         'Code' => $code,
                         'Name' => $name,
-                        'FirstName' => $customer->get_first_name(),
-                        'LastName' => $customer->get_last_name(),
+                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
+                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
                         'ContactType' => 1,
                         'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                        'Address' => $customer->get_billing_address(),
-                        'City' => $customer->get_billing_city(),
-                        'State' => $customer->get_billing_state(),
-                        'Country' => $customer->get_billing_country(),
-                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
-                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
+                        'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_billing_city()),
+                        'State' => Ssbhesabfa_Validation::contactStateValidation($customer->get_billing_state()),
+                        'Country' => Ssbhesabfa_Validation::contactCountryValidation($customer->get_billing_country()),
+                        'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($customer->get_billing_postcode()),
+                        'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($customer->get_billing_phone()),
+                        'Email' => Ssbhesabfa_Validation::contactEmailValidation($customer->get_email()),
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
-                        'Note' => 'Customer ID in OnlineStore: ' . $id_customer,
+                        'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                     )
                 );
                 break;
@@ -299,18 +300,19 @@ class Ssbhesabfa_Admin_Functions
                     array(
                         'Code' => $code,
                         'Name' => $name,
-                        'FirstName' => $customer->get_first_name(),
-                        'LastName' => $customer->get_last_name(),
+                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
+                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
                         'ContactType' => 1,
                         'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                        'Address' => $customer->get_billing_address(),
-                        'City' => $customer->get_billing_city(),
-                        'State' => $customer->get_billing_state(),
-                        'Country' => $customer->get_billing_country(),
-                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
-                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
+                        'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_billing_city()),
+                        'State' => Ssbhesabfa_Validation::contactStateValidation($customer->get_billing_state()),
+                        'Country' => Ssbhesabfa_Validation::contactCountryValidation($customer->get_billing_country()),
+                        'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($customer->get_billing_postcode()),
+                        'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($customer->get_billing_phone()),
+                        'Email' => Ssbhesabfa_Validation::contactEmailValidation($customer->get_email()),
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
+                        'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                     )
                 );
                 break;
@@ -319,18 +321,19 @@ class Ssbhesabfa_Admin_Functions
                     array(
                         'Code' => $code,
                         'Name' => $name,
-                        'FirstName' => $customer->get_first_name(),
-                        'LastName' => $customer->get_last_name(),
+                        'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
+                        'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
                         'ContactType' => 1,
                         'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                        'Address' => $customer->get_shipping_address(),
-                        'City' => $customer->get_shipping_city(),
-                        'State' => $customer->get_shipping_state(),
-                        'Country' => $customer->get_shipping_country(),
-                        'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_shipping_postcode()), 0, 9),
-                        'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                        'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                        'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_shipping_address()),
+                        'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_shipping_city()),
+                        'State' => Ssbhesabfa_Validation::contactStateValidation($customer->get_shipping_state()),
+                        'Country' => Ssbhesabfa_Validation::contactCountryValidation($customer->get_shipping_country()),
+                        'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($customer->get_shipping_postcode()),
+                        'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($customer->get_billing_phone()),
+                        'Email' => Ssbhesabfa_Validation::contactEmailValidation($customer->get_email()),
                         'Tag' => json_encode(array('id_customer' => $id_customer)),
+                        'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                     )
                 );
                 break;
@@ -385,19 +388,20 @@ class Ssbhesabfa_Admin_Functions
         }
         $data = array (
             array(
+
                 'Code' => $code,
                 'Name' => $name,
-                'FirstName' => $order->get_billing_first_name(),
-                'LastName' => $order->get_billing_last_name(),
+                'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($order->get_billing_first_name()),
+                'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($order->get_billing_last_name()),
                 'ContactType' => 1,
                 'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                'Address' => $order->get_billing_address_1() .' '.$order->get_billing_address_2(),
-                'City' => $order->get_billing_city(),
-                'State' => $order->get_billing_state(),
-                'Country' => $order->get_billing_country(),
-                'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $order->get_billing_postcode()), 0, 9),
-                'Phone' => preg_replace("/[^0-9]/", "", $order->get_billing_phone()),
-                'Email' => $this->validEmail($order->get_billing_email()) ? $order->get_billing_email() : null,
+                'Address' => Ssbhesabfa_Validation::contactAddressValidation($order->get_billing_address_1() .' '.$order->get_billing_address_2()),
+                'City' => Ssbhesabfa_Validation::contactCityValidation($order->get_billing_city()),
+                'State' => Ssbhesabfa_Validation::contactStateValidation($order->get_billing_state()),
+                'Country' => Ssbhesabfa_Validation::contactCountryValidation($order->get_billing_country()),
+                'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($order->get_billing_postcode()),
+                'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($order->get_billing_phone()),
+                'Email' => Ssbhesabfa_Validation::contactEmailValidation($order->get_billing_email()),
                 'Tag' => json_encode(array('id_customer' => 0)),
                 'Note' => __('Customer registered as a GuestCustomer.', 'ssbhesabfa'),
             )
@@ -431,66 +435,6 @@ class Ssbhesabfa_Admin_Functions
             Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: Guest Customer"));
             return false;
         }
-    }
-
-    public function validEmail($email)
-    {
-        $isValid = true;
-        $atIndex = strrpos($email, "@");
-        if (is_bool($atIndex) && !$atIndex)
-        {
-            $isValid = false;
-        }
-        else
-        {
-            $domain = substr($email, $atIndex+1);
-            $local = substr($email, 0, $atIndex);
-            $localLen = strlen($local);
-            $domainLen = strlen($domain);
-            if ($localLen < 1 || $localLen > 64)
-            {
-                // local part length exceeded
-                $isValid = false;
-            }
-            else if ($domainLen < 1 || $domainLen > 255)
-            {
-                // domain part length exceeded
-                $isValid = false;
-            }
-            else if ($local[0] == '.' || $local[$localLen-1] == '.')
-            {
-                // local part starts or ends with '.'
-                $isValid = false;
-            }
-            else if (preg_match('/\\.\\./', $local))
-            {
-                // local part has two consecutive dots
-                $isValid = false;
-            }
-            else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
-            {
-                // character not valid in domain part
-                $isValid = false;
-            }
-            else if (preg_match('/\\.\\./', $domain))
-            {
-                // domain part has two consecutive dots
-                $isValid = false;
-            }
-            else if
-            (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-                str_replace("\\\\","",$local)))
-            {
-                // character not valid in local part unless
-                // local part is quoted
-                if (!preg_match('/^"(\\\\"|[^"])+"$/',
-                    str_replace("\\\\","",$local)))
-                {
-                    $isValid = false;
-                }
-            }
-        }
-        return $isValid;
     }
 
     public function getContactCodeByEmail($email) {
@@ -579,6 +523,7 @@ class Ssbhesabfa_Admin_Functions
 			    $items[] = $product['product_id'];
 		    }
 	    }
+
         if (!empty($items)) {
             if (!$this->setItems($items)) {
                 return false;
@@ -592,7 +537,7 @@ class Ssbhesabfa_Admin_Functions
             $item = array (
                 'RowNumber' => $i,
                 'ItemCode' => $itemCode,
-                'Description' => $product['name'],
+                'Description' => Ssbhesabfa_Validation::invoiceItemDescriptionValidation($product['name']),
                 'Quantity' => (int)$product['quantity'],
                 'UnitPrice' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] / $product['quantity']),
                 'Discount' => (float)$this->getPriceInHesabfaDefaultCurrency($product['subtotal'] - $product['total']),
@@ -600,6 +545,12 @@ class Ssbhesabfa_Admin_Functions
             );
             array_push($items, $item);
             $i++;
+        }
+
+        if (empty($items)) {
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update Invoice. At least one item required."));
+
+            return false;
         }
 
         $date_obj = $order->get_date_created();
@@ -681,6 +632,10 @@ class Ssbhesabfa_Admin_Functions
             $price *= 10;
         }
 
+        if ($hesabfa_currency == 'IRT' && $woocommerce_currency == 'IRR') {
+            $price /= 10;
+        }
+
         return $price;
     }
 
@@ -695,6 +650,10 @@ class Ssbhesabfa_Admin_Functions
 
         if ($hesabfa_currency == 'IRR' && $woocommerce_currency == 'IRT') {
             $price /= 10;
+        }
+
+        if ($hesabfa_currency == 'IRT' && $woocommerce_currency == 'IRR') {
+            $price *= 10;
         }
 
         return $price;
@@ -832,12 +791,11 @@ class Ssbhesabfa_Admin_Functions
             if (!$id_obj) {
                 $product = new WC_Product($id_product);
                 $categories = $product->get_category_ids();
-                $name = mb_substr($product->get_title(),0,99);
 
                 array_push($items, array(
-                    'Name' => $name,
+                    'Name' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
                     'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
-                    'Barcode' => $product->get_sku(),
+                    'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
                     'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
                     'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
@@ -852,9 +810,9 @@ class Ssbhesabfa_Admin_Functions
                     $id_obj = $this->getObjectId('product', $id_product, $id_attribute);
                     if (!$id_obj) {
                         array_push($items, array(
-                            'Name' => mb_substr($variation->get_name(), 0, 99),
+                            'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
                             'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
-                            'Barcode' => $variation->get_sku(),
+                            'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
                             'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),
                             'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
                             'NodeFamily' => $this->getCategoryPath($categories[0]),
@@ -980,19 +938,19 @@ class Ssbhesabfa_Admin_Functions
 
                 array_push($data, array(
                     'Name' => $name,
-                    'FirstName' => $customer->get_first_name(),
-                    'LastName' => $customer->get_last_name(),
+                    'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
+                    'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
                     'ContactType' => 1,
                     'NodeFamily' => 'اشخاص :' . get_option('ssbhesabfa_contact_node_family'),
-                    'Address' => $customer->get_billing_address(),
-                    'City' => $customer->get_billing_city(),
-                    'State' => $customer->get_billing_state(),
-                    'Country' => $customer->get_billing_country(),
-                    'PostalCode' => mb_substr(preg_replace("/[^0-9]/", '', $customer->get_billing_postcode()), 0, 9),
-                    'Phone' => preg_replace("/[^0-9]/", "", $customer->get_billing_phone()),
-                    'Email' => $this->validEmail($customer->get_email()) ? $customer->get_email() : null,
+                    'Address' => Ssbhesabfa_Validation::contactAddressValidation($customer->get_billing_address()),
+                    'City' => Ssbhesabfa_Validation::contactCityValidation($customer->get_billing_city()),
+                    'State' => Ssbhesabfa_Validation::contactStateValidation($customer->get_billing_state()),
+                    'Country' => Ssbhesabfa_Validation::contactCountryValidation($customer->get_billing_country()),
+                    'PostalCode' => Ssbhesabfa_Validation::contactPostalCodeValidation($customer->get_billing_postcode()),
+                    'Phone' => Ssbhesabfa_Validation::contactPhoneValidation($customer->get_billing_phone()),
+                    'Email' => Ssbhesabfa_Validation::contactEmailValidation($customer->get_email()),
                     'Tag' => json_encode(array('id_customer' => $id_customer)),
-                    'Note' => 'Customer ID in OnlineStore: ' . $id_customer,
+                    'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                 ));
             }
         }
@@ -1106,6 +1064,7 @@ class Ssbhesabfa_Admin_Functions
             }
         }
 
+        $log = mb_convert_encoding($log, 'UTF-8');
         file_put_contents( WP_CONTENT_DIR . '/ssbhesabfa.log', $log, FILE_APPEND );
     }
 }

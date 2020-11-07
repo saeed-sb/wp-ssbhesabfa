@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-10-04 13:23+0330\n"
-"PO-Revision-Date: 2020-10-04 13:23+0330\n"
+"POT-Creation-Date: 2020-11-07 14:11+0330\n"
+"PO-Revision-Date: 2020-11-07 14:11+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -44,6 +44,34 @@ msgid ""
 msgstr ""
 "افزونه حسابفا نمی‌تواند به درستی عمل کند! واحد پول پیش‌فرض ووکامرس با واحد پول "
 "پیش‌فرض حسابفا همخوانی ندارد."
+
+#: admin/class-ssbhesabfa-admin.php:410 admin/class-ssbhesabfa-admin.php:502
+msgid "The new Item code already used for another Item"
+msgstr "این کد قبلا برای کالایی دیگر استفاده شده است."
+
+#: admin/class-ssbhesabfa-admin.php:483
+msgid "Hesabfa base item code"
+msgstr "کد کالای پایه در حسابفا"
+
+#: admin/class-ssbhesabfa-admin.php:485
+msgid ""
+"The base Item code of this product in Hesabfa, if you want to map this product "
+"to another item in Hesabfa, enter the new Item code."
+msgstr ""
+"این فیلد کد کالای پایه در حسابفا است، اگر می‌خواهید این کالا را به کالای دیگری "
+"در حسابفا ارتباط دهید، کد کالای جدید را وارد نمایید."
+
+#: admin/class-ssbhesabfa-admin.php:521
+msgid "Hesabfa variable item code"
+msgstr "کد کالای متغیر در حسابفا"
+
+#: admin/class-ssbhesabfa-admin.php:523
+msgid ""
+"The variable Item code of this product variable in Hesabfa, if you want to map "
+"this product to another item in Hesabfa, enter the new Item code."
+msgstr ""
+"این فیلد کد کالای متغییر در حسابفا است، اگر می‌خواهید این کالا را به کالای "
+"دیگری در حسابفا ارتباط دهید، کد کالای جدید را وارد نمایید."
 
 #: admin/partials/ssbhesabfa-admin-display.php:28
 msgid "Hesabfa Options"
@@ -93,16 +121,23 @@ msgstr ""
 "افزونه حسابفا جهت راه‌اندازی نیاز به ووکامرس دارد! لطفا ووکامرس را نصب/فعال "
 "کنید و مجدد سعی کنید."
 
-#: admin/partials/ssbhesabfa-admin-functions.php:271
-#: admin/partials/ssbhesabfa-admin-functions.php:977
+#: admin/partials/ssbhesabfa-admin-functions.php:273
+#: admin/partials/ssbhesabfa-admin-functions.php:936
 msgid "Not Define"
 msgstr "وارد نشده"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:383
+#: admin/partials/ssbhesabfa-admin-functions.php:294
+#: admin/partials/ssbhesabfa-admin-functions.php:315
+#: admin/partials/ssbhesabfa-admin-functions.php:336
+#: admin/partials/ssbhesabfa-admin-functions.php:953
+msgid "Customer ID in OnlineStore: "
+msgstr "شناسه مشتری در فروشگاه آن‌لاین:"
+
+#: admin/partials/ssbhesabfa-admin-functions.php:387
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:401
+#: admin/partials/ssbhesabfa-admin-functions.php:406
 msgid "Customer registered as a GuestCustomer."
 msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 

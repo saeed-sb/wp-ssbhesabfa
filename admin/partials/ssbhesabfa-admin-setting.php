@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Setting
- * @version    1.1.3
+ * @version    1.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/setting
@@ -575,7 +575,7 @@ class Ssbhesabfa_Setting {
                 if ($default_currency->Success) {
                     $woocommerce_currency = get_woocommerce_currency();
                     $hesabfa_currency = $default_currency->Result->Currency;
-                    if ($hesabfa_currency == $woocommerce_currency || ($hesabfa_currency == 'IRR' && $woocommerce_currency == 'IRT')) {
+                    if ($hesabfa_currency == $woocommerce_currency || ($hesabfa_currency == 'IRR' && $woocommerce_currency == 'IRT') || ($hesabfa_currency == 'IRT' && $woocommerce_currency == 'IRR')) {
                         update_option('ssbhesabfa_hesabfa_default_currency', $hesabfa_currency);
                     } else {
                         update_option('ssbhesabfa_hesabfa_default_currency', 0);

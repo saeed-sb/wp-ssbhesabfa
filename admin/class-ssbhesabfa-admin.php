@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.1.4
+ * @version    1.1.5
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -391,24 +391,138 @@ class Ssbhesabfa_Admin {
         $function->setItems(array($id_product));
     }
 
+    public function ssbhesabfa_hook_save_product_variation($id_attribute)
+    {
+        //change hesabfa item code
+        $variable_field_id = "ssbhesabfa_hesabfa_item_code_" . $id_attribute;
+        $code = $_POST[$variable_field_id];
+        $id_product = $_POST['product_id'];
+
+        if (isset($code)) {
+            global $wpdb;
+            $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_hesabfa` = ".$code." AND `obj_type` = 'product'");
+
+            if (is_object($row)) {
+                if ($row->id_ps == $id_product && $row->id_ps_attribute == $id_attribute) {
+                    return false;
+                }
+
+                echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
+                Ssbhesabfa_Admin_Functions::log(array("The new Item code already used for another Item. Product ID: $id_product"));
+            } else {
+                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+                    'id_hesabfa' => (int)$code,
+                ), array(
+                    'id_ps' => $id_product,
+                    'id_ps_attribute' => $id_attribute,
+                    'obj_type' => 'product',
+                ));
+            }
+        }
+
+        //add attribute if not exists
+        $func = new Ssbhesabfa_Admin_Functions();
+        $code = $func->getItemCodeByProductId($id_product, $id_attribute);
+        if (!$code) {
+            $func->setItems(array($id_product));
+        }
+    }
+
+    //ToDo: check why base product not deleted
     public function ssbhesabfa_hook_delete_product($id_product)
     {
         $func = new Ssbhesabfa_Admin_Functions();
-        $id_obj = $func->getObjectId('product', $id_product, 0);
-        if ($id_obj != false) {
+        $hesabfaApi = new Ssbhesabfa_Api();
+        global $wpdb;
+
+        $variations = $func->getProductVariations($id_product);
+        if ($variations != false) {
+            foreach ($variations as $variation) {
+                $id_attribute = $variation->get_id();
+                $code = $func->getItemCodeByProductId($id_product, $id_attribute);
+                if ($code != false) {
+                    $hesabfaApi->itemDelete($code);
+
+                    $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+                    Ssbhesabfa_Admin_Functions::log(array("Product variation deleted. Product ID: $id_product-$id_attribute"));
+                }
+            }
+        }
+
+        $code = $func->getItemCodeByProductId($id_product);
+        if ($code != false) {
+            $hesabfaApi->itemDelete($code);
+
+            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_hesabfa' => $code, 'obj_type' => 'product'));
+            Ssbhesabfa_Admin_Functions::log(array("Product deleted. Product ID: $id_product"));
+        }
+    }
+
+    public function ssbhesabfa_hook_delete_product_variation($id_attribute)
+    {
+//        $func = new Ssbhesabfa_Admin_Functions();
+        $hesabfaApi = new Ssbhesabfa_Api();
+        global $wpdb;
+
+//        $code = $func->getItemCodeByProductId($id_product, $id_attribute);
+        $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_ps_attribute` = $id_attribute AND `obj_type` = 'product'");
+
+        if (is_object($row)) {
+            $hesabfaApi->itemDelete($row->id_hesabfa);
+
+            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id' => $row->id));
+            Ssbhesabfa_Admin_Functions::log(array("Product variation deleted. Product ID: $row->id_ps-$id_attribute"));
+        }
+    }
+
+    public function ssbhesabfa_hook_product_options_general_product_data()
+    {
+        $value = isset($_GET['post']) ? Ssbhesabfa_Admin_Functions::getItemCodeByProductId($_GET['post']) : '';
+        $args = array(
+            'id' => 'ssbhesabfa_hesabfa_item_code_0',
+            'label' => __( 'Hesabfa base item code', 'ssbhesabfa' ),
+            'desc_tip' => true,
+            'description' => __( 'The base Item code of this product in Hesabfa, if you want to map this product to another item in Hesabfa, enter the new Item code.', 'ssbhesabfa' ),
+            'value' => $value,
+            'type' => 'number',
+        );
+        woocommerce_wp_text_input($args);
+    }
+
+    public function ssbhesabfa_hook_process_product_meta($post_id)
+    {
+        $itemCode = $_POST['ssbhesabfa_hesabfa_item_code_0'];
+
+        if (isset($itemCode)) {
             global $wpdb;
-            $row = $wpdb->get_row("SELECT `id_hesabfa` FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id` = $id_obj AND `obj_type` = 'product'");
+            $row = $wpdb->get_row("SELECT * FROM `".$wpdb->prefix."ssbhesabfa` WHERE `id_hesabfa` = ".$itemCode." AND `obj_type` = 'product'");
 
             if (is_object($row)) {
-                $hesabfaApi = new Ssbhesabfa_Api();
-                $hesabfaApi->itemDelete($row->id_hesabfa);
+                //ToDo: show error to customer in BO
+                echo '<div class="error"><p>' . __('The new Item code already used for another Item', 'ssbhesabfa') . '</p></div>';
+                Ssbhesabfa_Admin_Functions::log(array("The new Item code already used for another Item. Product ID: $post_id"));
+            } else {
+                $wpdb->update($wpdb->prefix . 'ssbhesabfa', array(
+                    'id_hesabfa' => (int)$_POST['ssbhesabfa_hesabfa_item_code_0'],
+                ), array(
+                    'id_ps' => $post_id,
+                    'id_ps_attribute' => 0,
+                    'obj_type' => 'product',
+                ));
             }
-
-            global $wpdb;
-            $wpdb->delete($wpdb->prefix.'ssbhesabfa', array('id_ps' => $id_product));
-
-            Ssbhesabfa_Admin_Functions::log(array("Product deleted. Product ID: $id_product"));
-
         }
+    }
+
+    public function ssbhesabfa_hook_product_after_variable_attributes($loop, $variation_data, $variation)
+    {
+        $value = isset($_POST['product_id']) ? Ssbhesabfa_Admin_Functions::getItemCodeByProductId($_POST['product_id'], $variation->ID) : '';
+        $args = array(
+            'id' => 'ssbhesabfa_hesabfa_item_code_' . $variation->ID,
+            'label' => __('Hesabfa variable item code', 'ssbhesabfa'),
+            'desc_tip' => true,
+            'description' => __('The variable Item code of this product variable in Hesabfa, if you want to map this product to another item in Hesabfa, enter the new Item code.', 'ssbhesabfa'),
+            'value' => $value,
+        );
+        woocommerce_wp_text_input($args);
     }
 }

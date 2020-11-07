@@ -4,7 +4,7 @@ Tags: accounting cloud hesabfa
 Requires at least: 5.2
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,14 @@ For more information and a full guide to how to use Hesabfa and WooCommerce Plug
 * fix product category path
 * fix some translations
 * export published and private products
+
+= 1.1.5 - 07.11.2020 =
+* fix IRR and IRT currency difference
+* add ValidationClass for validate Item/Contact/Invoice fields
+* add Item code field in Product/Variation
+* improve log descriptions
+* change Hesabfa logo
+* delete Product/Variations in hesabfa when delete in WooCommerce
 
 == Upgrade Notice ==
 Automatic updates should work smoothly, but we still recommend you back up your site.
