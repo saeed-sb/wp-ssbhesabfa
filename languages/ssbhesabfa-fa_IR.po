@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-11-07 14:11+0330\n"
-"PO-Revision-Date: 2020-11-07 14:11+0330\n"
+"POT-Creation-Date: 2020-11-30 12:55+0330\n"
+"PO-Revision-Date: 2020-11-30 12:55+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
@@ -121,23 +121,23 @@ msgstr ""
 "افزونه حسابفا جهت راه‌اندازی نیاز به ووکامرس دارد! لطفا ووکامرس را نصب/فعال "
 "کنید و مجدد سعی کنید."
 
-#: admin/partials/ssbhesabfa-admin-functions.php:273
-#: admin/partials/ssbhesabfa-admin-functions.php:936
+#: admin/partials/ssbhesabfa-admin-functions.php:277
+#: admin/partials/ssbhesabfa-admin-functions.php:944
 msgid "Not Define"
 msgstr "وارد نشده"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:294
-#: admin/partials/ssbhesabfa-admin-functions.php:315
-#: admin/partials/ssbhesabfa-admin-functions.php:336
-#: admin/partials/ssbhesabfa-admin-functions.php:953
+#: admin/partials/ssbhesabfa-admin-functions.php:298
+#: admin/partials/ssbhesabfa-admin-functions.php:319
+#: admin/partials/ssbhesabfa-admin-functions.php:340
+#: admin/partials/ssbhesabfa-admin-functions.php:961
 msgid "Customer ID in OnlineStore: "
 msgstr "شناسه مشتری در فروشگاه آن‌لاین:"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:387
+#: admin/partials/ssbhesabfa-admin-functions.php:391
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:406
+#: admin/partials/ssbhesabfa-admin-functions.php:410
 msgid "Customer registered as a GuestCustomer."
 msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 
