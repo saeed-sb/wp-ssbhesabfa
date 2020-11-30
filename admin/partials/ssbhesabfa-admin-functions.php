@@ -135,6 +135,8 @@ class Ssbhesabfa_Admin_Functions
 		    $item = array(
 			    'Code'        => $code,
 			    'Name'        => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
+			    'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
+			    'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
 			    'ItemType'    => $product->is_virtual() == 1 ? 1 : 0,
 			    'Barcode'     => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
 			    'Tag'         => json_encode( array( 'id_product' => $id_product, 'id_attribute' => 0 ) ),
@@ -160,6 +162,8 @@ class Ssbhesabfa_Admin_Functions
 				    $item = array(
 					    'Code' => $code,
 					    'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
+					    'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
+					    'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
 					    'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
 					    'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
 					    'Tag' => json_encode(array(
@@ -794,6 +798,8 @@ class Ssbhesabfa_Admin_Functions
 
                 array_push($items, array(
                     'Name' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
+                    'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
+                    'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
                     'ItemType' => $product->is_virtual() == 1 ? 1 : 0,
                     'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
                     'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
@@ -811,6 +817,8 @@ class Ssbhesabfa_Admin_Functions
                     if (!$id_obj) {
                         array_push($items, array(
                             'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
+                            'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
+                            'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
                             'ItemType' => $variation->is_virtual() == 1 ? 1 : 0,
                             'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
                             'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),

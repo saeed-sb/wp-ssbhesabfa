@@ -174,7 +174,7 @@ class Ssbhesabfa {
 //                $this->loader->add_action('woocommerce_payment_complete', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 1);
 //                $this->loader->add_filter('woocommerce_payment_complete_order_status', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 1);
 //                $this->loader->add_filter('woocommerce_order_status_completed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 1);
-                $this->loader->add_filter('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 10, 3);
+                $this->loader->add_filter('woocommerce_order_status_changed', $plugin_admin, 'ssbhesabfa_hook_payment_confirmation', 11, 3);
 
                 //Runs when a user's profile is first created.
                 $this->loader->add_action('user_register', $plugin_admin, 'ssbhesabfa_hook_user_register');

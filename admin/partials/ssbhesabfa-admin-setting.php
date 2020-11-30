@@ -629,7 +629,7 @@ class Ssbhesabfa_Setting {
             $available_banks = array();
             $available_banks[-1] = __('No need to set!', 'ssbhesabfa');
             foreach ($banks->Result as $bank) {
-                if ($bank->Currency == get_woocommerce_currency() || (get_woocommerce_currency() == 'IRT' && $bank->Currency == 'IRR')) {
+                if ($bank->Currency == get_woocommerce_currency() || (get_woocommerce_currency() == 'IRT' && $bank->Currency == 'IRR') || (get_woocommerce_currency() == 'IRR' && $bank->Currency == 'IRT')) {
                     $available_banks[$bank->Code] = $bank->Name . ' - ' . $bank->Branch . ' - ' . $bank->AccountNumber;
                 }
             }

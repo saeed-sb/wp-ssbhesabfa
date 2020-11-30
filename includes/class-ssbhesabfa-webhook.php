@@ -37,9 +37,9 @@ class Ssbhesabfa_Webhook
 					            $id_obj = Ssbhesabfa_Admin_Functions::getObjectIdByCode('product', $item->Extra);
 					            global $wpdb;
 					            $wpdb->delete($wpdb->prefix . 'ssbhesabfa', array('id' => $id_obj));
-//                            $hesabfa = new HesabfaModel($id_obj);
-//                            $hesabfa->delete();
-				            }
+
+                                break;
+                            }
 				            $this->itemsObjectId[] = $item->ObjectId;
 
                             break;
