@@ -114,7 +114,7 @@ class Ssbhesabfa_Admin_Functions
 
     //Items
     public function setItems($id_product_array) {
-	    if ( ! isset( $id_product_array ) || $id_product_array[0] == null ) {
+	    if (!isset( $id_product_array) || $id_product_array[0] == null ) {
 		    return false;
 	    }
 
@@ -786,8 +786,17 @@ class Ssbhesabfa_Admin_Functions
         $products = get_posts($args);
 
         $items = array();
+        $items[0] = array();
+        $i = 0;
+        $j = 0;
 
         foreach ($products as $item) {
+            if ($i > 999) {
+                $j++;
+                $items[$j] = array();
+                $i = 0;
+            }
+
             $id_product = $item->ID;
 
             //do if product not exists in hesabfa
@@ -796,7 +805,7 @@ class Ssbhesabfa_Admin_Functions
                 $product = new WC_Product($id_product);
                 $categories = $product->get_category_ids();
 
-                array_push($items, array(
+                array_push($items[$j], array(
                     'Name' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
                     'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
                     'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($product->get_title()),
@@ -807,6 +816,7 @@ class Ssbhesabfa_Admin_Functions
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 ));
+                $i++;
             }
 
             $variations = $this->getProductVariations($id_product);
@@ -815,7 +825,7 @@ class Ssbhesabfa_Admin_Functions
                     $id_attribute = $variation->get_id();
                     $id_obj = $this->getObjectId('product', $id_product, $id_attribute);
                     if (!$id_obj) {
-                        array_push($items, array(
+                        array_push($items[$j], array(
                             'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
                             'PurchasesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
                             'SalesTitle' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
@@ -826,31 +836,36 @@ class Ssbhesabfa_Admin_Functions
                             'NodeFamily' => $this->getCategoryPath($categories[0]),
                             'ProductCode' => $id_product,
                         ));
+                        $i++;
                     }
                 }
             }
         }
 
         if (!empty($items)) {
+            $count = 0;
             $hesabfa = new Ssbhesabfa_Api();
-            $response = $hesabfa->itemBatchSave($items);
-            if ($response->Success) {
-                foreach ($response->Result as $item) {
-                    $json = json_decode($item->Tag);
+            foreach ($items as $array) {
+                $response = $hesabfa->itemBatchSave($array);
+                if ($response->Success) {
+                    foreach ($response->Result as $item) {
+                        $json = json_decode($item->Tag);
 
-                    global $wpdb;
-                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$item->Code,
-                        'obj_type' => 'product',
-                        'id_ps' => (int)$json->id_product,
-                        'id_ps_attribute' => (int)$json->id_attribute,
-                    ));
-                    Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item Code: ".(string)$item->Code.". Product ID: $id_product"));
+                        global $wpdb;
+                        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                            'id_hesabfa' => (int)$item->Code,
+                            'obj_type' => 'product',
+                            'id_ps' => (int)$json->id_product,
+                            'id_ps_attribute' => (int)$json->id_attribute,
+                        ));
+                        Ssbhesabfa_Admin_Functions::log(array("Item successfully added. Item Code: ".(string)$item->Code.". Product ID: $id_product"));
+                    }
+                    $count += count($response->Result);
+                } else {
+                    Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk item. Error Message: ".(string)$response->ErrorMessage.". Error Code: ".(string)$response->ErrorCode."."));
                 }
-                return count($response->Result);
-            } else {
-                Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk item. Error Message: ".(string)$response->ErrorMessage.". Error Code: ".(string)$response->ErrorCode."."));
             }
+            return $count;
         } else {
             return 0;
         }
@@ -931,8 +946,19 @@ class Ssbhesabfa_Admin_Functions
     public function exportCustomers()
     {
         $customers = get_users(array('fields' => array('ID')));
-        $data = array();
+
+        $items = array();
+        $items[0] = array();
+        $i = 0;
+        $j = 0;
+
         foreach ($customers as $item) {
+            if ($i > 1000) {
+                $j++;
+                $items[$j] = array();
+                $i = 0;
+            }
+
             //do if customer not exists in hesabfa
             $id_customer = $item->ID;
             $id_obj = $this->getObjectId('customer', $id_customer);
@@ -944,7 +970,7 @@ class Ssbhesabfa_Admin_Functions
                     $name = __('Not Define', 'ssbhesabfa');
                 }
 
-                array_push($data, array(
+                array_push($items[$j], array(
                     'Name' => $name,
                     'FirstName' => Ssbhesabfa_Validation::contactFirstNameValidation($customer->get_first_name()),
                     'LastName' => Ssbhesabfa_Validation::contactLastNameValidation($customer->get_last_name()),
@@ -960,34 +986,38 @@ class Ssbhesabfa_Admin_Functions
                     'Tag' => json_encode(array('id_customer' => $id_customer)),
                     'Note' => __('Customer ID in OnlineStore: ', 'ssbhesabfa') . $id_customer,
                 ));
+                $i++;
             }
         }
 
-        if (!empty($data)) {
+        if (!empty($items)) {
+            $count = 0;
             $hesabfa = new Ssbhesabfa_Api();
-            $response = $hesabfa->contactBatchSave($data);
+            foreach ($items as $array) {
+                $response = $hesabfa->contactBatchSave($array);
 
-            if ($response->Success) {
-                foreach ($response->Result as $item) {
-                    $json = json_decode($item->Tag);
+                if ($response->Success) {
+                    foreach ($response->Result as $item) {
+                        $json = json_decode($item->Tag);
 
-                    global $wpdb;
-                    $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
-                        'id_hesabfa' => (int)$item->Code,
-                        'obj_type' => 'customer',
-                        'id_ps' => (int)$json->id_customer,
-                    ));
+                        global $wpdb;
+                        $wpdb->insert($wpdb->prefix . 'ssbhesabfa', array(
+                            'id_hesabfa' => (int)$item->Code,
+                            'obj_type' => 'customer',
+                            'id_ps' => (int)$json->id_customer,
+                        ));
 
-                    Ssbhesabfa_Admin_Functions::log(array("Contact successfully added. Contact Code: ".$item->Code.". Customer ID: " . (int)$json->id_customer));
+                        Ssbhesabfa_Admin_Functions::log(array("Contact successfully added. Contact Code: ".$item->Code.". Customer ID: " . (int)$json->id_customer));
+                    }
+                    $count += count($response->Result);
+                } else {
+                    Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
                 }
-                return count($response->Result);
-            } else {
-                Ssbhesabfa_Admin_Functions::log(array("Cannot add bulk contacts. Error Message: $response->ErrorMessage. Error Code: $response->ErrorCode."));
             }
+            return $count;
         } else {
             return 0;
         }
-
         return false;
     }
 
