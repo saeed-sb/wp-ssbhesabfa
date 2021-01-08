@@ -2,7 +2,7 @@
 
 /**
  * @class      Ssbhesabfa_Admin_Functions
- * @version    1.1.5
+ * @version    1.1.6
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin/functions
@@ -103,7 +103,7 @@ class Ssbhesabfa_Admin_Functions
             $variations = array();
             foreach ($children as $value) {
                 $product_variatons = new WC_Product_Variation($value);
-                if ($product_variatons->exists() && $product_variatons->variation_is_visible()) {
+	            if ($product_variatons->exists()) {
                     $variations[] = $product_variatons;
                 }
             }
@@ -128,9 +128,6 @@ class Ssbhesabfa_Admin_Functions
 		    $categories = $product->get_category_ids();
 
 		    $code = $this->getItemCodeByProductId( $id_product );
-		    if ( ! $code ) {
-			    $code = null;
-		    }
 
 		    $item = array(
 			    'Code'        => $code,
@@ -156,9 +153,7 @@ class Ssbhesabfa_Admin_Functions
 			    foreach ($variations as $variation) {
 				    $id_attribute = $variation->get_id();
 				    $code = $this->getItemCodeByProductId($id_product, $id_attribute);
-				    if (!$code) {
-					    $code = null;
-				    }
+
 				    $item = array(
 					    'Code' => $code,
 					    'Name' => Ssbhesabfa_Validation::itemNameValidation($variation->get_name()),
@@ -170,7 +165,7 @@ class Ssbhesabfa_Admin_Functions
 						    'id_product'   => $id_product,
 						    'id_attribute' => $id_attribute
 					    )),
-//					    'Active' => $product->active ? true : false,
+//					    'Active' => $variation->variation_is_active ? true : false,
 					    'NodeFamily'  => $this->getCategoryPath($categories[0]),
 					    'ProductCode' => $id_product,
 				    );
@@ -267,9 +262,6 @@ class Ssbhesabfa_Admin_Functions
         }
 
         $code = $this->getContactCodeByCustomerId($id_customer);
-        if (!$code) {
-            $code = null;
-        }
 
         $customer = new WC_Customer($id_customer);
         $name = $customer->get_first_name() . ' ' . $customer->get_last_name();
@@ -582,7 +574,7 @@ class Ssbhesabfa_Admin_Functions
             'Reference' => $reference,
             'Status' => 2,
             'Tag' => json_encode(array('id_order' => $id_order)),
-            'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total()),
+            'Freight' => $this->getPriceInHesabfaDefaultCurrency($order->get_shipping_total() + $order->get_shipping_tax()),
             'InvoiceItems' => $items,
         );
 
@@ -813,6 +805,7 @@ class Ssbhesabfa_Admin_Functions
                     'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($product->get_sku()),
                     'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($product->get_price()),
                     'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => 0)),
+//					'Active' => $product->active ? true : false,
                     'NodeFamily' => $this->getCategoryPath($categories[0]),
                     'ProductCode' => $id_product,
                 ));
@@ -833,6 +826,7 @@ class Ssbhesabfa_Admin_Functions
                             'Barcode' => Ssbhesabfa_Validation::itemBarcodeValidation($variation->get_sku()),
                             'SellPrice' => $this->getPriceInHesabfaDefaultCurrency($variation->get_price()),
                             'Tag' => json_encode(array('id_product' => $id_product, 'id_attribute' => $id_attribute)),
+    //					    'Active' => $variation->variation_is_active ? true : false,
                             'NodeFamily' => $this->getCategoryPath($categories[0]),
                             'ProductCode' => $id_product,
                         ));

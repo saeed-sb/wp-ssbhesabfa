@@ -4,7 +4,7 @@
  * The admin-specific functionality of the plugin.
  *
  * @class      Ssbhesabfa_Admin
- * @version    1.1.5
+ * @version    1.1.6
  * @since      1.0.0
  * @package    ssbhesabfa
  * @subpackage ssbhesabfa/admin
@@ -423,7 +423,7 @@ class Ssbhesabfa_Admin {
         //add attribute if not exists
         $func = new Ssbhesabfa_Admin_Functions();
         $code = $func->getItemCodeByProductId($id_product, $id_attribute);
-        if (!$code) {
+        if ($code == null) {
             $func->setItems(array($id_product));
         }
     }

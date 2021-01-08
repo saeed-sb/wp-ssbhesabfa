@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Hesabfa Accounting\n"
-"POT-Creation-Date: 2020-11-30 12:55+0330\n"
-"PO-Revision-Date: 2020-11-30 12:55+0330\n"
+"POT-Creation-Date: 2021-01-08 14:20+0330\n"
+"PO-Revision-Date: 2021-01-08 14:20+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa_IR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.7\n"
+"X-Generator: Poedit 2.4.2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-WPHeader: ssbhesabfa.php\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -121,23 +121,23 @@ msgstr ""
 "افزونه حسابفا جهت راه‌اندازی نیاز به ووکامرس دارد! لطفا ووکامرس را نصب/فعال "
 "کنید و مجدد سعی کنید."
 
-#: admin/partials/ssbhesabfa-admin-functions.php:277
-#: admin/partials/ssbhesabfa-admin-functions.php:944
+#: admin/partials/ssbhesabfa-admin-functions.php:269
+#: admin/partials/ssbhesabfa-admin-functions.php:964
 msgid "Not Define"
 msgstr "وارد نشده"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:298
-#: admin/partials/ssbhesabfa-admin-functions.php:319
-#: admin/partials/ssbhesabfa-admin-functions.php:340
-#: admin/partials/ssbhesabfa-admin-functions.php:961
+#: admin/partials/ssbhesabfa-admin-functions.php:290
+#: admin/partials/ssbhesabfa-admin-functions.php:311
+#: admin/partials/ssbhesabfa-admin-functions.php:332
+#: admin/partials/ssbhesabfa-admin-functions.php:981
 msgid "Customer ID in OnlineStore: "
 msgstr "شناسه مشتری در فروشگاه آن‌لاین:"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:391
+#: admin/partials/ssbhesabfa-admin-functions.php:383
 msgid "Guest Customer"
 msgstr "مشتری مهمان"
 
-#: admin/partials/ssbhesabfa-admin-functions.php:410
+#: admin/partials/ssbhesabfa-admin-functions.php:402
 msgid "Customer registered as a GuestCustomer."
 msgstr "مشتری به عنوان مهمان ثبت‌نام کرده است."
 
