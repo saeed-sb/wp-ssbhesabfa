@@ -54,6 +54,6 @@ class Ssbhesabfa_Activator {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
       	dbDelta($sql);
 
-        update_option('ssbhesabfa_db_version', Ssbhesabfa_Activator::$ssbhesabfa_db_version);
+        update_option('ssbhesabfa_db_version', self::$ssbhesabfa_db_version);
     }
 }

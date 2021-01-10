@@ -251,7 +251,7 @@ class Ssbhesabfa_Admin_Functions
         if (is_object($row)) {
             return $row->id_hesabfa;
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -359,7 +359,7 @@ class Ssbhesabfa_Admin_Functions
             }
             return $response->Result[0]->Code;
         } else {
-            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update contact. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: $id_customer"));
             return false;
         }
     }
@@ -428,7 +428,7 @@ class Ssbhesabfa_Admin_Functions
 //            }
             return (int)$response->Result[0]->Code;
         } else {
-            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update item. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: Guest Customer"));
+            Ssbhesabfa_Admin_Functions::log(array("Cannot add/update contact. Error Code: ".(string)$response->ErrroCode.". Error Message: ".(string)$response->ErrorMessage.". Customer ID: Guest Customer"));
             return false;
         }
     }
@@ -487,7 +487,7 @@ class Ssbhesabfa_Admin_Functions
             $contactCode = $this->getContactCodeByCustomerId($id_customer);
 
             // set customer if not exists
-            if ($contactCode === false) {
+            if ($contactCode == null) {
                 $contactCode = $this->setContact($id_customer, 'first');
 
                 if (!$contactCode) {
